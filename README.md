@@ -1,10 +1,10 @@
 
 From video to imgs by nn and cv
 
-* by cv 
+* by cv    
   backup diff   
 
-* by cnn 
+* by cnn    
   feature extract   
 
 
