@@ -6,6 +6,7 @@
 
 * transformer-based  [tensorrt-llm](https://github.com/NVIDIA/TensorRT-LLM)   
 对于无cnn的，不借助onnx解析器，自己搭建网络推理 
+如 llama.cpp   llama2.c    
 
 * cnn + transformer both-based  tensorrt[plugin] + tensorrt-llm
 
