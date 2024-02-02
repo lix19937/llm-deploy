@@ -20,8 +20,14 @@ A = relu(B + C)
  可能会减少launch kernel时间    
 
 
+## sigmoid  
+是 elementwise op   
+单调函数   多标签分类  
+
 ## softmax   
-一般方法是 3次kernel  获得全局最大值 M= max(x_i)， S=sum_i(exp(x_i - M))， y_i = x_i /S   
+是 reduction op     多类别分类    
+
+一般方法是 3次kernel  `获得全局最大值 M= max(x_i)， S=sum_i(exp(x_i - M))， y_i = x_i /S`        
 online方法 或 1-pass方法  
 
 先把全部数据集中到一个线程块，然后在一个线程块内做规约，由此得到全局最大值呢？  
