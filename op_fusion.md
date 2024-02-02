@@ -2,7 +2,7 @@
 # 算子融合     
 
 ## 有依赖的融合  
- 减少了访存
+减少了访存-内存墙   
 
 从合并难度的角度，算子又被分为    
 + pointwise（elementwise）    
@@ -20,8 +20,8 @@ A = relu(B + C)
 
 
 ## 无依赖的融合
- 可能会减少launch kernel时间    
-
+可能会减少launch kernel时间 - 并行墙     保证计算图执行非CB部分的子图时也能充分利用设备的计算资源，这方面典型的工作是 TASO 和 RAMMER      
+将计算过程中互不依赖的低计算量子图打包为一个kernel并行计算以提升资源利用率
 
 ## sigmoid  
 是 elementwise op   
