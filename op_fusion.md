@@ -13,8 +13,8 @@ elementwise + elementwise, elementwise + reduction, reduction + elementwise, red
 
 A = relu(B + C)
 
-+ 遍历路线：针对特定设备，枚举实现典型的CB+MB形式的融合算子，如Conv+ReLU/Conv+BN+ReLU/Dense+ReLU/Conv+Sum等等，Intel的oneDNN以及国内很多大厂的推理框架走的都是这个路线。
-
+算子融合技术路线：    
++ 遍历路线：针对特定设备，枚举实现典型的CB+MB形式的融合算子，如Conv+ReLU/Conv+BN+ReLU/Dense+ReLU/Conv+Sum等等，Intel的oneDNN以及国内很多大厂的推理框架走的都是这个路线。  
 + 规则路线：基于规则实现算子融合，以TVM为例，其将所有算子分为Opaque/Injective/Reduction/Complex-out四类，并设定融合规则形如Complex-out+Injective/Injective+Injective/Injective+Reduction等，以此实现所有符合规则的子图融合。
 
 
