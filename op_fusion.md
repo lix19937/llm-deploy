@@ -7,7 +7,7 @@
 从合并难度的角度，算子又被分为    
 + pointwise（elementwise）    
 + reduction  
-+ 计算密集型，如matmul和convolution     
++ 计算密集型Compute-bound，以下称CB，如matmul和convolution     
 
 访存密集型     
 elementwise + elementwise, elementwise + reduction, reduction + elementwise, reduction + reduction
