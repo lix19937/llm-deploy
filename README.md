@@ -6,7 +6,7 @@
 基于TRT，自定义插件完成低效模块的计算，最终仍back到TRT中   
 
 * transformer-based(decoder)  [tensorrt-llm](https://github.com/NVIDIA/TensorRT-LLM)      
-对于无cnn的，如GPT2，不借助onnx解析器，自己搭建网络推理，典型的llama.cpp   llama2.c 这类针对特定结构开发的推理项目           
+对于无cnn的，如GPT2，不借助onnx解析器，自己搭建网络推理，典型的llama.cpp   llama2.c 这类针对特定结构开发的推理项目，以及vllm       
 https://lilianweng.github.io/posts/2023-01-10-inference-optimization/#distillation     
 
 * cnn + transformer  tensorrt[plugin] + tensorrt-llm         
