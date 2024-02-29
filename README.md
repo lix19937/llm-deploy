@@ -27,8 +27,11 @@ LLM Inference要做好需要算法以及工程系统性合作，会涉及到以�
 
 ### Inference优化目标：
 Inference服务关注两个指标：Latency和Throughput。  
-Latency关注服务体验，也就是返回结果要快，用户体验好。  
-Throughput则是关注系统成本，高Throughput则系统单位时间处理的量就大，系统利用率高，但是会影响latency。这两个指标一般情况下需要**trade-off**。    
+
+Latency关注服务体验，也就是返回结果要快，用户体验好。    
+Throughput则是关注系统成本，高Throughput则系统单位时间处理的量就大，系统利用率高，但是会影响latency。    
+
+这两个指标一般情况下需要**trade-off**。    
 
 - Latency：延时，主要从用户的视角来看，也就是用户提交一个prompt，然后得到response的时间。特殊情况batch_size=1只给一个用户进行服务，Latency是最低的。计算方法为生成一个token所需要的单位时间数，如16 ms/token。    
 - Throughput：吞吐率，主要是从系统的角度来看，单位时间内能处理的tokens数，如16 tokens/sec。扩大Throughput的方法一般就是提升Batch_size，也就是将一个一个用户的请求由之前的串行改为并行。   
