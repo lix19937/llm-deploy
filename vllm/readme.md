@@ -23,10 +23,10 @@ Optimized CUDA kernels
 PagedAttention 对于显存的利用接近理论上的最优值（浪费比例低于4%）。通过对显存进行更好的管理，可以使得单次可以使用更大的 batch size，从而进一步利用 GPU 的并行计算能力。
 
 ### memory sharing   
-memory sharing 是 PagedAttention 的另一个关键特性。  
-当用单个 prompt 产出多个不同的序列时，可以共享计算量和显存。  
-通过将不同序列的 logical blocks 映射到同一个 physical blocks，可以实现显存共享。    
-为了保证共享的安全性，对于 physical blocks 的引用次数进行统计，并实现了 Copy-on-Write 机制。这种内存共享机制，可以大幅降低复杂采样算法对于显存的需求（最高可下降55%），从而可以提升2.2倍的吞吐量。   
++ memory sharing 是 PagedAttention 的另一个关键特性。  
++ 当用单个 prompt 产出多个不同的序列时，可以共享计算量和显存。  
++ 通过将不同序列的 logical blocks 映射到同一个 physical blocks，可以实现显存共享。    
++ 为了保证共享的安全性，对于 physical blocks 的引用次数进行统计，并实现了 **Copy-on-Write** 机制。这种内存共享机制，可以大幅降低复杂采样算法对于显存的需求（最高可下降55%），从而可以提升2.2倍的吞吐量。   
 
 https://zhuanlan.zhihu.com/p/642802585     
 https://blog.vllm.ai/2023/06/20/vllm.html   
