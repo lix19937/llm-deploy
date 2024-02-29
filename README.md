@@ -10,5 +10,8 @@
 https://lilianweng.github.io/posts/2023-01-10-inference-optimization/#distillation     
 
 * cnn + transformer  tensorrt[plugin] + tensorrt-llm         
-例如detr3d, vit 需要tensorrt[plugin] 与 tensorrt-llm 一起使用，实现最优效果      
+例如detr3d, vit 需要tensorrt[plugin] 与 tensorrt-llm 一起使用，实现最优效果
+
+## gpu角度下dnn性能     
+[understand-perf ](https://docs.nvidia.com/deeplearning/performance/dl-performance-gpu-background/index.html#understand-perf)   
   
