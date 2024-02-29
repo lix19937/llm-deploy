@@ -31,5 +31,18 @@ PagedAttention 对于显存的利用接近理论上的最优值（浪费比例�
 + 通过将不同序列的 logical blocks 映射到同一个 physical blocks，可以实现显存共享。    
 + 为了保证共享的安全性，对于 physical blocks 的引用次数进行统计，并实现了 **Copy-on-Write** 机制。这种内存共享机制，可以大幅降低复杂采样算法对于显存的需求（最高可下降55%），从而可以提升2.2倍的吞吐量。   
 
+
+
+pip install vllm  
+
+```
+# 离线推理
+from vllm import LLM
+
+prompts = ["Hello, my name is", "The capital of France is"]  # Sample prompts.
+llm = LLM(model="lmsys/vicuna-7b-v1.3")  # Create an LLM.
+outputs = llm.generate(prompts)  # Generate texts from the prompts.
+```
+
 https://zhuanlan.zhihu.com/p/642802585     
 https://blog.vllm.ai/2023/06/20/vllm.html   
