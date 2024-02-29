@@ -118,3 +118,6 @@ Hugging Face pipeline Accelerate
 ## gpu角度下dnn性能     
 [understand-perf ](https://docs.nvidia.com/deeplearning/performance/dl-performance-gpu-background/index.html#understand-perf)   
   
+
+
+https://zhuanlan.zhihu.com/p/649640010
