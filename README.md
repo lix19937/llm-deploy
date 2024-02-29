@@ -81,7 +81,7 @@ FasterTransformer
 - 在使用FP16时使用half2类型，达到half两倍的访存带宽和计算吞吐   
 - 优化gelu、softmax、layernorm的实现以及选用rsqrt等  
 
-DeepSpeed Zero-Inference       
+DeepSpeed            
 - 微软  
 - 同时优化latency和Throughput   
 - 优化Latency：a multi-GPU inference solution.主要是下面三个技术   
