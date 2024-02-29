@@ -26,10 +26,11 @@ LLM Inference要做好需要算法以及工程系统性合作，会涉及到以�
 每个方向不断有新的工作出现，下面先主要看下核心部分1：     
 
 ### Inference优化目标：
-Inference服务关注两个指标：Latency和Throughput。  
+Inference服务关注两个指标：**Latency** 和 **Throughput**。    
 
-Latency关注服务体验，也就是返回结果要快，用户体验好。    
-Throughput则是关注系统成本，高Throughput则系统单位时间处理的量就大，系统利用率高，但是会影响latency。    
+Latency 关注服务体验，也就是返回结果要快，用户体验好。    
+
+Throughput 关注系统成本，高Throughput则系统单位时间处理的量就大，系统利用率高，但是会影响latency。    
 
 这两个指标一般情况下需要**trade-off**。    
 
