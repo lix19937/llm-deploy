@@ -73,14 +73,14 @@ Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是�
 FasterTransformer    
 - Nvidia   
 - latency-oriented    
-- 方法：90%的时间消耗在12层Transformer的前向计算上，总结优化点如下：https://zhuanlan.zhihu.com/p/79528308      
+- 90%的时间消耗在12层Transformer的前向计算上，总结优化点如下：https://zhuanlan.zhihu.com/p/79528308      
 - 为了减少kernel调用次数，将除了矩阵乘法的kernel都尽可能合并（这个可能是主要的）
 - 针对大batch单独进行了kernel优化   
 - 支持选择最优的矩阵乘法   
 - 在使用FP16时使用half2类型，达到half两倍的访存带宽和计算吞吐   
 - 优化gelu、softmax、layernorm的实现以及选用rsqrt等  
 
-DeepSpeed Zero-Inference：   
+DeepSpeed Zero-Inference       
 - 微软  
 - 同时优化latency和Throughput   
 - 优化Latency：a multi-GPU inference solution.主要是下面三个技术   
@@ -89,17 +89,17 @@ DeepSpeed Zero-Inference：
     - optimized sparse kernels
 - 优化Throughput：Zero-Inference也是用到了offloading技术，如何结合GPU显存以及其他外部存储设备如DRAM、NVMe等加载大模型，问题变为How to apportion GPU memory among model weights, inference inputs and intermediate results.然后可以接受大的batch size，进而提升Throughput。
 
-LLaMA.cpp：  
+LLaMA.cpp     
 - 最火热的开源社区产品    
 - 面向消费级CPU/GPU的Inference框架，主打易用性，CPU支持   
-- 方法：offloading、高效C++解码（没有用任何复杂的语句）   
+- offloading、高效C++解码（没有用任何复杂的语句）   
 
-vLLM：  
+vLLM      
 - UC Berkeley    
 - Throughput-Oriented，目前看到claim提升最大的。   
-- 方法：paged attention，动态分配K-V Cache，提升Batch_size
+- paged attention，动态分配K-V Cache，提升Batch_size
 
-FlexGen：   
+FlexGen         
 - Stanford/UC Berkeley/CMU/META   
 - Throughput - oriented   
 - 主要优化目标：在有限资源情况下如何高效利用CPU/Disk以提升Throughput。
@@ -108,11 +108,10 @@ ChatGPT Serving
 - OpenAI   
 - serving的latency性能还没有看到
 
-Hugging Face pipeline Accelerate:   
+Hugging Face pipeline Accelerate        
 - HuggingFace   
 - Latency - oriented   
-- 方法：distributed Inference （https://huggingface.co/docs/accelerate/usage_guides/distributed_inference）
-
+- distributed Inference （https://huggingface.co/docs/accelerate/usage_guides/distributed_inference）
 
 
 ## gpu角度下dnn性能     
