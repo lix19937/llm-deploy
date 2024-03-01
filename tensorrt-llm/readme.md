@@ -8,5 +8,5 @@ TensorRT-LLM 是 NVIDIA 用于做 LLM（Large Language Model）的可扩展推�
 
 
 除了绿色 TensorRT 编译部分和一些涉及硬件信息的 kernels 外，其他部分都是开源的     
-![v2-7353108f2e22fea040d375925ac73a1b_r](https://github.com/lix19937/llm-deploy/assets/38753233/27393e78-31c9-4ed1-b7ac-1963ef89f766)
+![v2-7353108f2e22fea040d375925ac73a1b_r](https://github.com/lix19937/llm-deploy/assets/38753233/e832b292-7445-4cbb-95fa-503f41a57ada)
  
