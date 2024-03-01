@@ -24,3 +24,4 @@ TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界�
 如下为 FMHA 的详细信息，其中 MQA 为 Multi Query Attention，GQA 为 Group Query Attention。   
 
 
+另外一个 Kernel 是 MMHA(Masked Multi-Head Attention)。FMHA 主要用在 context phase 阶段的计算，而 MMHA 主要提供 generation phase 阶段 attention 的加速，并提供了 Volta 和之后架构的支持。相比 FastTransformer 的实现，TensorRT-LLM 有进一步优化，性能提升高达 2x。    
