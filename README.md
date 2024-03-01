@@ -16,7 +16,7 @@ https://lilianweng.github.io/posts/2023-01-10-inference-optimization/#distillati
 https://developer.nvidia.com/blog/mastering-llm-techniques-inference-optimization/
 
 LLM Inference要做好需要算法以及工程系统性合作，会涉及到以下一些技术方向：    
-+ 1.Inference算法核心部分，Transformer inference过程及加速原理、一些主流的加速框架梳理；   
++ 1.Inference算法核心部分，Transformer inference过程及加速原理；   
 + 2.解码策略及调参，GreedySearch、BeamSearch、Sampling、top_k、top_p、temperature、no_repeated_ngram_size等优化；    
 + 3.多机多卡的GPU集群分布式解码，并行（Tensor/Pipeline/MoE Expert parallelism）。集群的搭建、不同机器以及卡的高效通信等；  
 + 4.高并发处理和优化，负载均衡，batch_size调优等；  
