@@ -28,3 +28,8 @@ TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界�
 
 
 另外一个重要特性是量化技术，以更低精度的方式实现推理加速。常用量化方式主要分为 PTQ(Post Training Quantization)和 QAT(Quantization-aware Training)，对于 TensorRT-LLM 而言，这两种量化方式的推理逻辑是相同的。对于 LLM 量化技术，一个重要的特点是算法设计和工程实现的 co-design，即对应量化方法设计之初，就要考虑硬件的特性。否则，有可能达不到预期的推理速度提升。  
+
+
+TensorRT 中 PTQ 量化步骤一般分为如下几步，首先对模型做量化，然后对权重和模型转化成 TensorRT-LLM 的表示。对于一些定制化的操作，还需要用户自己编写 kernels。常用的 PTQ 量化方法包括 INT8 weight-only、SmoothQuant、GPTQ 和 AWQ，这些方法都是典型的 co-design 的方法。
+
+
