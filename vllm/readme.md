@@ -1,6 +1,5 @@
 ## 主要是解决 通量的   
 
-
 采用了 PagedAttention，可以有效管理 attention 的 keys、values    
 吞吐量（通量）最多可以达到 huggingface 实现的24倍，并且不需要对模型结构进行任何的改变
 
@@ -10,7 +9,6 @@ Continuous batching of incoming requests
 Fast model execution with CUDA/HIP graph    
 Quantization: GPTQ, AWQ, SqueezeLLM, FP8 KV Cache    
 Optimized CUDA kernels    
-
 
 ### 背景   
 + LLM 的推理，最大的瓶颈在于显存。
@@ -27,7 +25,8 @@ PagedAttention 对于显存的利用接近理论上的最优值（浪费比例�
 
 ### memory sharing   
 + memory sharing 是 PagedAttention 的另一个关键特性。  
-+ 当用单个 prompt 产出多个不同的序列时，可以共享计算量和显存。  
++ 当用单个 prompt 产出多个不同的序列时，可以共享计算量和显存。
+    怎么理解当用单个 prompt 产出多个不同的序列时 ？   
 + 通过将不同序列的 logical blocks 映射到同一个 physical blocks，可以实现显存共享。    
 + 为了保证共享的安全性，对于 physical blocks 的引用次数进行统计，并实现了 **Copy-on-Write** 机制。这种内存共享机制，可以大幅降低复杂采样算法对于显存的需求（最高可下降55%），从而可以提升2.2倍的吞吐量。   
 
