@@ -25,7 +25,7 @@ TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界�
 ![precision](https://github.com/lix19937/llm-deploy/assets/38753233/f315a3fe-5de9-43de-a4fa-a346068a15ce)
 
 -------   
-另外一个特性就是 FMHA(fused multi-head attention) kernel 的实现。由于 Transformer 中最为耗时的部分是 self-attention 的计算，因此官方设计了 FMHA 来优化 self-attention 的计算，并提供了累加器分别为 fp16 和 fp32 不同的版本。另外，除了速度上的提升外，对内存的占用也大大降低。我们还提供了基于 flash attention 的实现，可以将 sequence-length 扩展到任意长度。
+另外一个特性就是 **FMHA(fused multi-head attention) kernel** 的实现。由于 Transformer 中最为耗时的部分是 self-attention 的计算，因此官方设计了 FMHA 来优化 self-attention 的计算，并提供了累加器分别为 fp16 和 fp32 不同的版本。另外，除了速度上的提升外，对内存的占用也大大降低。我们还提供了基于 flash attention 的实现，可以将 sequence-length 扩展到任意长度。
 ![fmha](https://github.com/lix19937/llm-deploy/assets/38753233/2fc2682b-6a38-4fa3-a6b1-0e454fa2f89c)
 
 -------   
@@ -37,7 +37,7 @@ TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界�
 ![mmha](https://github.com/lix19937/llm-deploy/assets/38753233/4f01889a-d50f-49f0-8bb2-113b938a20ff)
 
 -------   
-另外一个重要特性是量化技术，以更低精度的方式实现推理加速。常用量化方式主要分为 PTQ(Post Training Quantization)和 QAT(Quantization-aware Training)，对于 TensorRT-LLM 而言，这两种量化方式的推理逻辑是相同的。对于 LLM 量化技术，一个重要的特点是算法设计和工程实现的 co-design，即对应量化方法设计之初，就要考虑硬件的特性。否则，有可能达不到预期的推理速度提升。  
+另外一个重要特性是**量化技术**，以更低精度的方式实现推理加速。常用量化方式主要分为 PTQ(Post Training Quantization)和 QAT(Quantization-aware Training)，对于 TensorRT-LLM 而言，这两种量化方式的推理逻辑是相同的。对于 LLM 量化技术，一个重要的特点是算法设计和工程实现的 co-design，即对应量化方法设计之初，就要考虑硬件的特性。否则，有可能达不到预期的推理速度提升。  
 ![qat](https://github.com/lix19937/llm-deploy/assets/38753233/e57bb8ac-fa5d-4592-a17c-984e5e510e89)
 
 -------   
@@ -51,7 +51,6 @@ INT8 weight-only 直接把权重量化到 INT8，但是激活值还是保持为 
 -------   
 第二个量化方法是 SmoothQuant，该方法是 NVIDIA 和社区联合设计的。它观察到权重通常服从高斯分布，容易量化，但是激活值存在离群点，量化比特位利用不高。
 ![smooth-q](https://github.com/lix19937/llm-deploy/assets/38753233/ae2b3c11-2e5d-4458-85f0-a1e55ae9c439)
-
 
 -------   
 SmoothQuant 通过先对激活值做平滑操作即除以一个scale将对应分布进行压缩，同时为了保证等价性，需要对权重乘以相同的 scale。之后，权重和激活都可以量化。对应的存储和计算精度都可以是 INT8 或者 FP8，可以利用 INT8 或者 FP8 的 TensorCore 进行计算。在实现细节上，权重支持 Per-tensor 和 Per-channel 的量化，激活值支持 Per-tensor 和 Per-token 的量化。
@@ -71,7 +70,7 @@ SmoothQuant 通过先对激活值做平滑操作即除以一个scale将对应分
 
 
 ------   
-除了量化方式之外，TensorRT-LLM 另外一个提升性能的方式是利用多机多卡推理。在一些场景中，大模型过大无法放在单个 GPU 上推理，或者可以放下但是影响了计算效率，都需要多卡或者多机进行推理。   
+除了量化方式之外，TensorRT-LLM 另外一个提升性能的方式是利用**多机多卡推理**。在一些场景中，大模型过大无法放在单个 GPU 上推理，或者可以放下但是影响了计算效率，都需要多卡或者多机进行推理。   
 ![mgmn-2](https://github.com/lix19937/llm-deploy/assets/38753233/a319e764-4a18-4c12-b973-47bad419475c)
 
 
@@ -81,9 +80,9 @@ TensorRT-LLM 目前提供了两种并行策略，Tensor Parallelism 和 Pipeline
 
 
 --------------   
-最后一个要强调的特性是 In-flight batching。Batching 是提高推理性能一个比较常用的做法，但在 LLM 推理场景中，一个 batch 中每个 sample/request 的输出长度是无法预测的。如果按照静态batching的方法，一个batch的时延取决于 sample/request 中输出最长的那个。因此，虽然输出较短的 sample/request 已经结束，但是并未释放计算资源，其时延与输出最长的那个 sample/request 时延相同。In-flight batching 的做法是在已经结束的 sample/request 处插入新的 sample/request。这样，不但减少了单个 sample/request 的延时，避免了资源浪费问题，同时也提升了整个系统的吞吐。这是一种优化的调度技术，可以更有效地处理动态负载。它允许 TensorRT-LLM 在其他请求仍在进行时开始执行新请求，从而提高 GPU 利用率。   
+最后一个要强调的特性是 **In-flight batching**。Batching 是提高推理性能一个比较常用的做法，但在 LLM 推理场景中，一个 batch 中每个 sample/request 的输出长度是无法预测的。如果按照静态batching的方法，一个batch的时延取决于 sample/request 中输出最长的那个。因此，虽然输出较短的 sample/request 已经结束，但是并未释放计算资源，其时延与输出最长的那个 sample/request 时延相同。In-flight batching 的做法是在已经结束的 sample/request 处插入新的 sample/request。这样，不但减少了单个 sample/request 的延时，避免了资源浪费问题，同时也提升了整个系统的吞吐。这是一种优化的调度技术，可以更有效地处理动态负载。它允许 TensorRT-LLM 在其他请求仍在进行时开始执行新请求，从而提高 GPU 利用率。   
 传统的 Batching 技术为 Static Batching 的，需要等 Batching 中所有序列推理完成后才能进行下一次批次。下图为一个输出最大 Token 为 8，Batch size 为 4 的推理过程，使用 Static Batching 技术。S3 序列在 T5 时刻就已经完成推理，但是需要等到 S2 序列在 T8 时刻推理完成后才会处理下一个 sequence，存在明显的资源浪费。    
-In-Flight Batching 又名 Continuous Batching 或 iteration-level batching，该技术可以提升推理吞吐率，降低推理时延。Continuous Batching 处理过程如下，当 S3 序列处理完成后插入一个新序列 S5 进行处理，提升资源利用率。详情可参考论文 Orca: A Distributed Serving System for Transformer-Based Generative Models。      
+In-flight batching 又名 Continuous Batching 或 iteration-level batching，该技术可以提升推理吞吐率，降低推理时延。Continuous Batching 处理过程如下，当 S3 序列处理完成后插入一个新序列 S5 进行处理，提升资源利用率。详情可参考论文 Orca: A Distributed Serving System for Transformer-Based Generative Models。      
 ![in-flight-batching](https://github.com/lix19937/llm-deploy/assets/38753233/f8acd396-0828-460d-9339-a5210023617a)
 
 
