@@ -53,6 +53,26 @@ TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界�
 如下为 FMHA 的详细信息，其中 MQA 为 Multi Query Attention，GQA 为 Group Query Attention。   
 ![fmha-2](https://github.com/lix19937/llm-deploy/assets/38753233/37886aca-afba-4aad-b966-f16188f88dd9)
 
+Attention 机制用于从序列中提取关键/重要信息，在情感识别、翻译、问答等任务中起着至关重要的作用。Attention 机制按照演进顺序可以分为 MHA（Multi-head Attention）、MQA（Multi-query Attention） 以及 GQA（Group-query Attention）机制。MQA 和 GQA 都是 MHA 的变种。   
+![GQA](https://github.com/lix19937/llm-deploy/assets/38753233/83397433-d543-440d-87ee-29de519ed7d5)
+
++ MHA 是标准的多头注意力机制，每个 query 存储一份 KV，因此需要使用较多的显存。    
++ MQA 所有 query 共享一份 KV，推理时容易丢失一些细节信息。   
++ GQA 将 query 进行分组，组内共享一份 KV，可以有效避免 MHA 和 MQA 的问题。      
+![GQA](https://github.com/lix19937/llm-deploy/assets/38753233/6aae2b31-4b15-4133-9486-5d8f23a5538d)
+
+TensorRT-LLM 支持 MHA、MQA 及 GQA 方式，可以在 tensorrt_llm.functional.gpt_attention 查看具体实现。
+
+作者：阿里云云原生
+链接：https://juejin.cn/post/7327121518549942282
+来源：稀土掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+作者：阿里云云原生
+链接：https://juejin.cn/post/7327121518549942282
+来源：稀土掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
 -------   
 另外一个 Kernel 是 MMHA(Masked Multi-Head Attention)。FMHA 主要用在 context phase 阶段的计算，而 MMHA 主要提供 generation phase 阶段 attention 的加速，并提供了 Volta 和之后架构的支持。相比 FastTransformer 的实现，TensorRT-LLM 有进一步优化，性能提升高达 2x。    
 ![mmha](https://github.com/lix19937/llm-deploy/assets/38753233/4f01889a-d50f-49f0-8bb2-113b938a20ff)
@@ -81,13 +101,11 @@ SmoothQuant 通过先对激活值做平滑操作即除以一个scale将对应分
 第三个量化方法是 GPTQ，一种逐层量化的方法，通过最小化重构损失来实现。GPTQ 属于 weight-only 的方式，计算采用 FP16 的数据格式。该方法用在量化大模型时，由于量化本身开销就比较大，所以作者设计了一些 trick 来降低量化本身的开销，比如 Lazy batch-updates 和以相同顺序量化所有行的权重。GPTQ 还可以与其他方法结合使用如 grouping 策略。并且，针对不同的情况，TensorRT-LLM 提供了不同的实现优化性能。具体地，对 batch size 较小的情况，用 cuda core 实现；相对地，batch size 较大时，采用 tensor core 实现。   
 ![gptq](https://github.com/lix19937/llm-deploy/assets/38753233/7d244815-d347-4c3f-b4ad-9b2638e1de33)
 
-
 ------   
 第四种量化方式是 AWQ。该方法认为不是所有权重都是同等重要的，其中只有 0.1%-1% 的权重（salient weights）对模型精度贡献更大，并且这些权重取决于激活值分布而不是权重分布。该方法的量化过程类似于 SmoothQuant，差异主要在于 scale 是基于激活值分布计算得到的。   
 ![awq](https://github.com/lix19937/llm-deploy/assets/38753233/735c7595-70e7-4047-8a62-7818c470ac18)     
 
 ![awq-2](https://github.com/lix19937/llm-deploy/assets/38753233/4b14226e-637e-43e8-ac84-6d215a4c568b)
-
 
 ------   
 除了量化方式之外，TensorRT-LLM 另外一个提升性能的方式是利用**多机多卡推理**。在一些场景中，大模型过大无法放在单个 GPU 上推理，或者可以放下但是影响了计算效率，都需要多卡或者多机进行推理。   
