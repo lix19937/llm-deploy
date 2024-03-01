@@ -24,7 +24,6 @@ LLM Inference要做好需要算法以及工程系统性合作，会涉及到以�
 + 6.其他工程相关，如GPU集群管理，稳定性，日常维护等。   
 
 每个方向不断有新的工作出现，下面先主要看下核心部分1：     
-
 ### Inference优化目标：
 Inference服务关注两个指标：**Latency** 和 **Throughput**。    
 
@@ -34,7 +33,8 @@ Throughput 关注系统成本，高Throughput则系统单位时间处理的量�
 
 这两个指标一般情况下需要**trade-off**。    
 
-- Latency：延时，主要从用户的视角来看，也就是用户提交一个prompt，然后得到response的时间。特殊情况batch_size=1只给一个用户进行服务，Latency是最低的。计算方法为生成一个token所需要的单位时间数，如16 ms/token。    
+- Latency：延时，主要从用户的视角来看，也就是用户提交一个prompt，然后得到response的时间。特殊情况batch_size=1只给一个用户进行服务，Latency是最低的。计算方法为生成一个token所需要的单位时间数，如16 ms/token。
+
 - Throughput：吞吐率，主要是从系统的角度来看，单位时间内能处理的tokens数，如16 tokens/sec。扩大Throughput的方法一般就是提升Batch_size，也就是将一个一个用户的请求由之前的串行改为并行。   
 
 高并发时，把用户的prompt合在扩大batch_size能提升Throughput，但会一定程度上损害每个用户的latency，因为以前只计算一个请求，现在合并计算多个请求，每个用户等待的时间就长了。从我们实际的测试结果可以看到，Throuput随着batch_size的增大而增大，但是latency是随着减小的，当然Latency在可接受范围内就是ok的。因此指标需要trade-off。     
@@ -63,12 +63,11 @@ Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是�
 
 ### 加速优化方法：  
 总结来看，目前的加速算法有两个优化方向     
-+ 一是针对Latency的优化；
-+ 二是针对Throughput的优化。
-  
-针对Latency的优化，主要还是底层的OP算子、矩阵优化、并行、更高效的C++解码等，如FasterTrnasformer以及DeepSpeed。针对Latency的优化可以提升Throughput，但没有直接用batch_size提升的更显著。    
-针对Throughput优化，主要是KV Cache存取优化，本质是降低显存开销，从而可以提升batch size。这方面工作相对多一些，如offloading技术，就是如何高效利用第三方存储CPU/DRAM/Disk，使得GPU显存能空出来进而增大batch_size。  
-再如vLLM中的PagedAttention技术就是借鉴OS中的分页以及虚拟存储思想实现显存动态分配，也能节省很多显存空间。还有如continuous batching，变传统的static batch为动态可复用的batch分配，同样也能尽可能扩大batch_size，进而提升Throughput。
+
+|优化方向| 方法|     
+|---|---|     
+|Latency|还是底层的OP算子、矩阵优化、并行、更高效的C++解码等，如FasterTrnasformer以及DeepSpeed。针对Latency的优化可以提升Throughput，但没有直接用batch_size提升的更显著。 |     
+|Throughput|主要是KV Cache存取优化，本质是降低显存开销，从而可以提升batch size。这方面工作相对多一些，如offloading技术，就是如何高效利用第三方存储CPU/DRAM/Disk，使得GPU显存能空出来进而增大batch_size。<br> 如vLLM中的PagedAttention技术就是借鉴OS中的分页以及虚拟存储思想实现显存动态分配，也能节省很多显存空间。<br>还有如continuous batching，变传统的static batch为动态可复用的batch分配，同样也能尽可能扩大batch_size，进而提升Throughput。|    
 
 ### 一些主流加速框架   
 
@@ -81,8 +80,6 @@ Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是�
 |FlexGen  |Stanford/UC Berkeley/CMU/META  | Throughput| 在有限资源情况下如何高效利用CPU/Disk以提升Throughput  | -  |  
 |Hugging Face pipeline Accelerate  |HuggingFace | Latency| distributed Inference （https://huggingface.co/docs/accelerate/usage_guides/distributed_inference）| -  |  
        
-
-
 ## gpu角度下dnn性能     
 [understand-perf ](https://docs.nvidia.com/deeplearning/performance/dl-performance-gpu-background/index.html#understand-perf)   
 解读     
