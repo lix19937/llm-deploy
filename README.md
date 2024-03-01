@@ -60,7 +60,7 @@ KV Cache的占用为4 * batch_size * layer_num * hidden_size * ( input_length + 
 ```   
 Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是非常惊人。里面唯一可以调节的参数是batch_size，显存占用基本与batch_size呈正比关系。显存的大小限制了batch_size，而batch_size的大小就限制了Throughput。因此就有很多加速工作就是想办法节省显存，进而扩大batch_size。
 
-### 加速优化方法   
+### 优化方法   
 
 |优化方向| 方法|     
 |---    |---  |     
