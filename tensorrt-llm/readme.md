@@ -71,7 +71,10 @@ TensorRT-LLM 支持 MHA、MQA 及 GQA 方式，可以在 tensorrt_llm.functional
 ![qat](https://github.com/lix19937/llm-deploy/assets/38753233/e57bb8ac-fa5d-4592-a17c-984e5e510e89)
 
 -------   
-TensorRT 中 PTQ 量化步骤一般分为如下几步，首先对模型做量化，然后对权重和模型转化成 TensorRT-LLM 的表示。对于一些定制化的操作，还需要用户自己编写 kernels。常用的 PTQ 量化方法包括 INT8 weight-only、SmoothQuant、GPTQ 和 AWQ，这些方法都是典型的 co-design 的方法。    
+TensorRT 中 PTQ 量化步骤一般分为如下几步：  
++ 首先对模型做量化   
++ 然后对权重和模型转化成 TensorRT-LLM 的表示      
+对于一些定制化的操作，还需要用户自己编写 kernels。常用的 PTQ 量化方法包括 INT8 weight-only、SmoothQuant、GPTQ 和 AWQ，这些方法都是典型的 co-design 的方法。    
 ![ptq](https://github.com/lix19937/llm-deploy/assets/38753233/d3f4ea46-ae70-4be7-805c-046a1f47a40f)
 
 -------   
@@ -119,7 +122,7 @@ In-flight batching 又名 Continuous Batching 或 iteration-level batching，该
 TensorRT-LLM 与 TensorRT的 使用方法类似，首先需要获得一个预训练好的模型，然后利用 TensorRT-LLM 提供的 API 对模型计算图进行改写和重建，接着用 TensorRT 进行编译优化，然后保存为序列化的 engine 进行推理部署。    
 ![how-to-use](https://github.com/lix19937/llm-deploy/assets/38753233/370ee07d-c7e6-4b8f-aae2-0456fc36b553)
 
----------------    
+---------------     
 以 Llama 为例，首先安装 TensorRT-LLM，然后下载预训练模型，接着利用 TensorRT-LLM 对模型进行编译，最后进行推理。     
 ![how-to-use--llama](https://github.com/lix19937/llm-deploy/assets/38753233/958d56f5-a331-4357-b676-7e4490d35780)
 
