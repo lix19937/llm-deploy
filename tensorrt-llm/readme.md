@@ -21,15 +21,17 @@ TensorRT-LLM 是 NVIDIA 用于做 LLM（Large Language Model）的可扩展推�
 
 ------- 
 
-除了绿色 TensorRT 编译部分和一些涉及硬件信息的 kernels 外，其他部分都是开源的     
+除了绿色 TensorRT 编译部分和一些涉及硬件信息的 kernels 外，其他部分都是开源的。          
 ![v2-7353108f2e22fea040d375925ac73a1b_r](https://github.com/lix19937/llm-deploy/assets/38753233/e832b292-7445-4cbb-95fa-503f41a57ada)
 
 -------   
-TensorRT-LLM 还提供了类 Pytorch 的 API 来降低开发者的学习成本，并提供了许多预定义好的模型供用户使用。   
+TensorRT-LLM 还提供了类 Pytorch 的 API 来降低开发者的学习成本，并提供了许多预定义好的模型供用户使用。     
 ![v2-7353108f2e22fea040d375925ac73a1b_r](https://github.com/lix19937/llm-deploy/assets/38753233/45792237-010d-40ae-acfa-fc1157b95219)
 
 -------   
-考虑到大语言模型比较大，有可能单卡放不下，需要多卡甚至多机推理，因此 TensorRT-LLM 还提供了 Tensor Parallelism 和 Pipeline Parallelism 两种并行机制来支持多卡或多机推理。 ![mgmn](https://github.com/lix19937/llm-deploy/assets/38753233/f09de4e5-d167-4ba5-81a9-d8a087a1b66d)     
+考虑到大语言模型比较大，有可能单卡放不下，需要多卡甚至多机推理，因此 TensorRT-LLM 还提供了 Tensor Parallelism 和 Pipeline Parallelism 两种并行机制来支持多卡或多机推理。
+
+![mgmn](https://github.com/lix19937/llm-deploy/assets/38753233/f09de4e5-d167-4ba5-81a9-d8a087a1b66d)     
   
 -------   
 TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界的量化方法，使用硬件吞吐更高的低精度推理进一步推升推理性能。    
