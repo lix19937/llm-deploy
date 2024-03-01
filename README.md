@@ -62,7 +62,7 @@ Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是�
 
 |优化方向| 方法|     
 |---|---|     
-|Latency|还是底层的OP算子、矩阵优化、并行、更高效的C++解码等，如FasterTrnasformer以及DeepSpeed。针对Latency的优化可以提升Throughput，但没有直接用batch_size提升的更显著。 |     
+|Latency|优化底层的OP算子、矩阵优化、并行、更高效的C++解码等，如FasterTrnasformer以及DeepSpeed。针对Latency的优化可以提升Throughput，但没有直接用batch_size提升的更显著。 |     
 |Throughput|主要是KV Cache存取优化，本质是降低显存开销，从而可以提升batch size。这方面工作相对多一些，如offloading技术，就是如何高效利用第三方存储CPU/DRAM/Disk，使得GPU显存能空出来进而增大batch_size。<br><br> 如vLLM中的PagedAttention技术就是借鉴OS中的分页以及虚拟存储思想实现显存动态分配，也能节省很多显存空间。<br>还有如continuous batching，变传统的static batch为动态可复用的batch分配，同样也能尽可能扩大batch_size，进而提升Throughput。|    
 
 ### 一些主流加速框架   
