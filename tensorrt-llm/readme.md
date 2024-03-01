@@ -74,6 +74,7 @@ TensorRT-LLM 目前提供了两种并行策略，Tensor Parallelism 和 Pipeline
 TensorRT-LLM 与 TensorRT的 使用方法类似，首先需要获得一个预训练好的模型，然后利用 TensorRT-LLM 提供的 API 对模型计算图进行改写和重建，接着用 TensorRT 进行编译优化，然后保存为序列化的 engine 进行推理部署。   
 
 
+---------------    
 以 Llama 为例，首先安装 TensorRT-LLM，然后下载预训练模型，接着利用 TensorRT-LLM 对模型进行编译，最后进行推理。     
 
 
