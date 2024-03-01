@@ -8,13 +8,13 @@ TensorRT-LLM 是 NVIDIA 用于做 LLM（Large Language Model）的可扩展推�
 ---------   
 ## 核心技术    
 + FMHA kernel     
-  见下文    
+  `见下文`    
 + 量化   
-  见下文     
+  `见下文`     
 + In-Flight Batching    
-  见下文   
+  `见下文`   
 + Graph Rewriting    
-  TensorRT-LLM 在将 LLM 模型编译为 TensorRT Engines 时会对神经网络进行优化，提升执行效率。
+  `TensorRT-LLM 在将 LLM 模型编译为 TensorRT Engines 时会对神经网络进行优化，提升执行效率。`
 
 ------- 
 
