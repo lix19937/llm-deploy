@@ -33,6 +33,13 @@ TensorRT-LLM 还提供了类似于 Pytorch 的 API 来降低开发者的学习�
 TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界的量化方法，使用硬件吞吐更高的低精度推理进一步推升推理性能。    
 ![precision](https://github.com/lix19937/llm-deploy/assets/38753233/f315a3fe-5de9-43de-a4fa-a346068a15ce)
 
+```
+W weight; A activate   
+W8A8 SQ 使用了 SmoothQuant 技术，在不降低模型推理准确率的前提下，将模型权重和激活层都降低为 INT8 精度，显著减少了 GPU 显存消耗。     
+W4A16/W8A16 是指 模型权重为 INT4 或者 INT8，激活层为 FP16 精度。    
+W4A16 AWQ 以及 W4A16 GPTQ 分别实现了 AWQ 和 GPTQ 两篇论文中提到的量化方法。模型权重为 INT4，激活层为 FP16 精度。       
+```
+
 -------   
 另外一个特性就是 **FMHA(fused multi-head attention) kernel** 的实现。由于 Transformer 中最为耗时的部分是 self-attention 的计算，因此官方设计了 FMHA 来优化 self-attention 的计算，并提供了累加器分别为 fp16 和 fp32 不同的版本。另外，除了速度上的提升外，对内存的占用也大大降低。我们还提供了基于 flash attention 的实现，可以将 sequence-length 扩展到任意长度。
 ![fmha](https://github.com/lix19937/llm-deploy/assets/38753233/2fc2682b-6a38-4fa3-a6b1-0e454fa2f89c)
