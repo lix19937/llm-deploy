@@ -14,3 +14,6 @@ TensorRT-LLM 还提供了类似于 Pytorch 的 API 来降低开发者的学习�
 ![v2-7353108f2e22fea040d375925ac73a1b_r](https://github.com/lix19937/llm-deploy/assets/38753233/45792237-010d-40ae-acfa-fc1157b95219)
 
 考虑到大语言模型比较大，有可能单卡放不下，需要多卡甚至多机推理，因此 TensorRT-LLM 还提供了 Tensor Parallelism 和 Pipeline Parallelism 两种并行机制来支持多卡或多机推理。   
+
+
+TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界的量化方法，使用硬件吞吐更高的低精度推理进一步推升推理性能。    
