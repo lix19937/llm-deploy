@@ -3,12 +3,12 @@
 采用了 PagedAttention，可以有效管理 attention 的 keys、values    
 吞吐量（通量）最多可以达到 huggingface 实现的24倍，并且不需要对模型结构进行任何的改变
 
-State-of-the-art serving **throughput**         
-Efficient management of attention key and value memory with PagedAttention    
-Continuous batching of incoming requests   
-Fast model execution with CUDA/HIP graph    
-Quantization: GPTQ, AWQ, SqueezeLLM, FP8 KV Cache    
-Optimized CUDA kernels    
++ State-of-the-art serving **throughput**         
++ Efficient management of attention key and value memory with PagedAttention    
++ Continuous batching of incoming requests   
++ Fast model execution with CUDA/HIP graph    
++ Quantization: GPTQ, AWQ, SqueezeLLM, FP8 KV Cache    
++ Optimized CUDA kernels    
 
 ### 背景   
 + LLM 的推理，最大的瓶颈在于显存。
