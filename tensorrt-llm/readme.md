@@ -107,6 +107,10 @@ SmoothQuant 通过先对激活值做平滑操作即除以一个scale将对应分
 TensorRT-LLM 目前提供了两种并行策略，Tensor Parallelism 和 Pipeline Parallelism。TP 是垂直地分割模型然后将各个部分置于不同的设备上，这样会引入设备之间频繁的数据通讯，一般用于设备之间有高度互联的场景，如 NVLINK。另一种分割方式是横向切分，此时只有一个横前面，对应通信方式是点对点的通信，适合于设备通信带宽较弱的场景。      
 ![tp-pp](https://github.com/lix19937/llm-deploy/assets/38753233/e0161bac-4426-4614-8511-2603625958b2)   
 
+当每个张量被分成多个块时，就会发生张量并行，并且张量的每个块都可以放置在单独的 GPU 上。在计算过程中，每个块在不同的 GPU 上单独并行处理；最后，可以通过组合来自多个 GPU 的结果来计算最终张量。   
+当模型被深度拆分，并将不同的完整层放置到不同的 GPU/节点上时，就会发生流水线并行。   
+
+
 --------------   
 最后一个要强调的特性是 **In-flight batching**。Batching 是提高推理性能一个比较常用的做法，但在 LLM 推理场景中，一个 batch 中每个 sample/request 的输出长度是无法预测的。如果按照静态batching的方法，一个batch的时延取决于 sample/request 中输出最长的那个。因此，虽然输出较短的 sample/request 已经结束，但是并未释放计算资源，其时延与输出最长的那个 sample/request 时延相同。In-flight batching 的做法是在已经结束的 sample/request 处插入新的 sample/request。这样，不但减少了单个 sample/request 的延时，避免了资源浪费问题，同时也提升了整个系统的吞吐。这是一种优化的调度技术，可以更有效地处理动态负载。它允许 TensorRT-LLM 在其他请求仍在进行时开始执行新请求，从而提高 GPU 利用率。   
 传统的 Batching 技术为 Static Batching 的，需要等 Batching 中所有序列推理完成后才能进行下一次批次。下图为一个输出最大 Token 为 8，Batch size 为 4 的推理过程，使用 Static Batching 技术。S3 序列在 T5 时刻就已经完成推理，但是需要等到 S2 序列在 T8 时刻推理完成后才会处理下一个 sequence，存在明显的资源浪费。     
