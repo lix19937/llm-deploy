@@ -61,7 +61,6 @@ KV Cache的占用为4 * batch_size * layer_num * hidden_size * ( input_length + 
 Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是非常惊人。里面唯一可以调节的参数是batch_size，显存占用基本与batch_size呈正比关系。显存的大小限制了batch_size，而batch_size的大小就限制了Throughput。因此就有很多加速工作就是想办法节省显存，进而扩大batch_size。
 
 ### 加速优化方法   
-目前的加速算法有两个优化方向      
 
 |优化方向| 方法|     
 |---    |---  |     
@@ -70,7 +69,7 @@ Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是�
 
 ### 一些主流加速框架   
 
-| 名称| 出品方| 主打| 方法 |  备注  |     
+| 名称| 出品方| 主打| 方法  |  备注  |     
 | ----|------| ----| ---- | -------|    
 | FasterTransformer| Nvidia | latency| 90%的时间消耗在12层Transformer的前向计算上，总结优化点如下：https://zhuanlan.zhihu.com/p/79528308<br>为了减少kernel调用次数，将除了矩阵乘法的kernel都尽可能合并（这个可能是主要的）<br>针对大batch单独进行了kernel优化<br>支持选择最优的矩阵乘法<br>在使用FP16时使用half2类型，达到half两倍的访存带宽和计算吞吐<br>优化gelu、softmax、layernorm的实现以及选用rsqrt等   | - |       
 |DeepSpeed|微软|latency和 Throughput| 优化Latency：a multi-GPU inference solution.<br>parallelism：Tensor parallelism、Pipeline parallelism、Expert Parallelism（MoE）。对多机多卡之间的通信带宽要求较高 <br>communication optimization<br>optimized sparse kernels<br><br>优化Throughput：Zero-Inference也用到了offloading技术<br> 如何结合GPU显存以及其他外部存储设备如DRAM、NVMe等加载大模型，问题变为How to apportion GPU memory among model weights, inference inputs and intermediate results <br> 然后可以接受大的batch size，进而提升Throughput。| - |    
