@@ -33,3 +33,4 @@ TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界�
 TensorRT 中 PTQ 量化步骤一般分为如下几步，首先对模型做量化，然后对权重和模型转化成 TensorRT-LLM 的表示。对于一些定制化的操作，还需要用户自己编写 kernels。常用的 PTQ 量化方法包括 INT8 weight-only、SmoothQuant、GPTQ 和 AWQ，这些方法都是典型的 co-design 的方法。
 
 
+INT8 weight-only 直接把权重量化到 INT8，但是激活值还是保持为 FP16。该方法的好处就是模型存储2x减小，加载 weights 的存储带宽减半，达到了提升推理性能的目的。这种方式业界称作 W8A16，即权重为 INT8，激活值为 FP16/BF16——以 INT8 精度存储，以 FP16/BF16 格式计算。该方法直观，不改变 weights，容易实现，具有较好的泛化性能。  
