@@ -70,49 +70,17 @@ Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是�
 针对Throughput优化，主要是KV Cache存取优化，本质是降低显存开销，从而可以提升batch size。这方面工作相对多一些，如offloading技术，就是如何高效利用第三方存储CPU/DRAM/Disk，使得GPU显存能空出来进而增大batch_size。  
 再如vLLM中的PagedAttention技术就是借鉴OS中的分页以及虚拟存储思想实现显存动态分配，也能节省很多显存空间。还有如continuous batching，变传统的static batch为动态可复用的batch分配，同样也能尽可能扩大batch_size，进而提升Throughput。
 
-### 一些主流加速框架：
-FasterTransformer    
-- Nvidia   
-- latency-oriented    
-- 90%的时间消耗在12层Transformer的前向计算上，总结优化点如下：https://zhuanlan.zhihu.com/p/79528308      
-- 为了减少kernel调用次数，将除了矩阵乘法的kernel都尽可能合并（这个可能是主要的）
-- 针对大batch单独进行了kernel优化   
-- 支持选择最优的矩阵乘法   
-- 在使用FP16时使用half2类型，达到half两倍的访存带宽和计算吞吐   
-- 优化gelu、softmax、layernorm的实现以及选用rsqrt等  
+### 一些主流加速框架   
 
-DeepSpeed            
-- 微软  
-- 同时优化latency和Throughput   
-- 优化Latency：a multi-GPU inference solution.主要是下面三个技术   
-    - parallelism： Tensor parallelism、Pipeline parallelism、Expert Parallelism（MoE）。对多机多卡之间的通信带宽要求较高
-    - communication optimization
-    - optimized sparse kernels
-- 优化Throughput：Zero-Inference也是用到了offloading技术，如何结合GPU显存以及其他外部存储设备如DRAM、NVMe等加载大模型，问题变为How to apportion GPU memory among model weights, inference inputs and intermediate results.然后可以接受大的batch size，进而提升Throughput。
-
-LLaMA.cpp     
-- 最火热的开源社区产品    
-- 面向消费级CPU/GPU的Inference框架，主打易用性，CPU支持   
-- offloading、高效C++解码（没有用任何复杂的语句）   
-
-vLLM      
-- UC Berkeley    
-- Throughput-Oriented，目前看到claim提升最大的。   
-- paged attention，动态分配K-V Cache，提升Batch_size
-
-FlexGen         
-- Stanford/UC Berkeley/CMU/META   
-- Throughput - oriented   
-- 主要优化目标：在有限资源情况下如何高效利用CPU/Disk以提升Throughput。
-
-ChatGPT Serving   
-- OpenAI   
-- serving的latency性能还没有看到
-
-Hugging Face pipeline Accelerate        
-- HuggingFace   
-- Latency - oriented   
-- distributed Inference （https://huggingface.co/docs/accelerate/usage_guides/distributed_inference）
+| 名称| 出品方| 主打| 方法 |  备注  |     
+| ----|------| ----| ---- | -------|    
+| FasterTransformer| Nvidia | latency| 90%的时间消耗在12层Transformer的前向计算上，总结优化点如下：https://zhuanlan.zhihu.com/p/79528308<br>为了减少kernel调用次数，将除了矩阵乘法的kernel都尽可能合并（这个可能是主要的）<br>针对大batch单独进行了kernel优化<br>支持选择最优的矩阵乘法<br>在使用FP16时使用half2类型，达到half两倍的访存带宽和计算吞吐<br>优化gelu、softmax、layernorm的实现以及选用rsqrt等   | - |       
+|DeepSpeed|微软|latency和 Throughput| 优化Latency：a multi-GPU inference solution.主要是下面三个技术<br>parallelism： Tensor parallelism、Pipeline parallelism、Expert Parallelism（MoE）。对多机多卡之间的通信带宽要求较高<br>communication optimization<br>optimized sparse kernels<br><br>优化Throughput：Zero-Inference也是用到了offloading技术<br> 如何结合GPU显存以及其他外部存储设备如DRAM、NVMe等加载大模型，问题变为How to apportion GPU memory among model weights, inference inputs and intermediate results <br> 然后可以接受大的batch size，进而提升Throughput。| -|    
+|llama.cpp|gg| -| offloading、高效C++解码（没有用任何复杂的语句）  | 面向消费级CPU/GPU的Inference框架，主打易用性，CPU支持  |  
+|vLLM     |UC Berkeley| Throughput| paged attention，动态分配K-V Cache，提升Batch_size  | -  |  
+|FlexGen  |Stanford/UC Berkeley/CMU/META  | Throughput| 在有限资源情况下如何高效利用CPU/Disk以提升Throughput  | -  |  
+|Hugging Face pipeline Accelerate  |HuggingFace | Latency| distributed Inference （https://huggingface.co/docs/accelerate/usage_guides/distributed_inference）| -  |  
+       
 
 
 ## gpu角度下dnn性能     
