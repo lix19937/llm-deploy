@@ -83,43 +83,40 @@ INT8 weight-only 直接把权重量化到 INT8，但是激活值还是保持为 
 ![smooth-q](https://github.com/lix19937/llm-deploy/assets/38753233/ae2b3c11-2e5d-4458-85f0-a1e55ae9c439)
 
 -------   
-SmoothQuant 通过先对激活值做平滑操作即除以一个scale将对应分布进行压缩，同时为了保证等价性，需要对权重乘以相同的 scale。之后，权重和激活都可以量化。对应的存储和计算精度都可以是 INT8 或者 FP8，可以利用 INT8 或者 FP8 的 TensorCore 进行计算。在实现细节上，权重支持 Per-tensor 和 Per-channel 的量化，激活值支持 Per-tensor 和 Per-token 的量化。
+SmoothQuant 通过先对激活值做平滑操作即除以一个scale将对应分布进行压缩，同时为了保证等价性，需要对权重乘以相同的 scale。之后，权重和激活都可以量化。对应的存储和计算精度都可以是 INT8 或者 FP8，可以利用 INT8 或者 FP8 的 TensorCore 进行计算。在实现细节上，权重支持 Per-tensor 和 Per-channel 的量化，激活值支持 Per-tensor 和 Per-token 的量化。    
 ![smooth-q-2](https://github.com/lix19937/llm-deploy/assets/38753233/b944fc71-abde-4e05-8bab-adbf89e3093b)
 
 -------   
-第三个量化方法是 GPTQ，一种逐层量化的方法，通过最小化重构损失来实现。GPTQ 属于 weight-only 的方式，计算采用 FP16 的数据格式。该方法用在量化大模型时，由于量化本身开销就比较大，所以作者设计了一些 trick 来降低量化本身的开销，比如 Lazy batch-updates 和以相同顺序量化所有行的权重。GPTQ 还可以与其他方法结合使用如 grouping 策略。并且，针对不同的情况，TensorRT-LLM 提供了不同的实现优化性能。具体地，对 batch size 较小的情况，用 cuda core 实现；相对地，batch size 较大时，采用 tensor core 实现。   
+第三个量化方法是 GPTQ，一种逐层量化的方法，通过最小化重构损失来实现。GPTQ 属于 weight-only 的方式，计算采用 FP16 的数据格式。该方法用在量化大模型时，由于量化本身开销就比较大，所以作者设计了一些 trick 来降低量化本身的开销，比如 Lazy batch-updates 和以相同顺序量化所有行的权重。GPTQ 还可以与其他方法结合使用如 grouping 策略。并且，针对不同的情况，TensorRT-LLM 提供了不同的实现优化性能。具体地，对 batch size 较小的情况，用 cuda core 实现；相对地，batch size 较大时，采用 tensor core 实现。     
 ![gptq](https://github.com/lix19937/llm-deploy/assets/38753233/7d244815-d347-4c3f-b4ad-9b2638e1de33)
 
 ------   
-第四种量化方式是 AWQ。该方法认为不是所有权重都是同等重要的，其中只有 0.1%-1% 的权重（salient weights）对模型精度贡献更大，并且这些权重取决于激活值分布而不是权重分布。该方法的量化过程类似于 SmoothQuant，差异主要在于 scale 是基于激活值分布计算得到的。   
+第四种量化方式是 AWQ。该方法认为不是所有权重都是同等重要的，其中只有 0.1%-1% 的权重（salient weights）对模型精度贡献更大，并且这些权重取决于激活值分布而不是权重分布。该方法的量化过程类似于 SmoothQuant，差异主要在于 scale 是基于激活值分布计算得到的。     
 ![awq](https://github.com/lix19937/llm-deploy/assets/38753233/735c7595-70e7-4047-8a62-7818c470ac18)     
 
-![awq-2](https://github.com/lix19937/llm-deploy/assets/38753233/4b14226e-637e-43e8-ac84-6d215a4c568b)
+![awq-2](https://github.com/lix19937/llm-deploy/assets/38753233/4b14226e-637e-43e8-ac84-6d215a4c568b)      
 
 ------   
-除了量化方式之外，TensorRT-LLM 另外一个提升性能的方式是利用**多机多卡推理**。在一些场景中，大模型过大无法放在单个 GPU 上推理，或者可以放下但是影响了计算效率，都需要多卡或者多机进行推理。   
+除了量化方式之外，TensorRT-LLM 另外一个提升性能的方式是利用**多机多卡推理**。在一些场景中，大模型过大无法放在单个 GPU 上推理，或者可以放下但是影响了计算效率，都需要多卡或者多机进行推理。      
 ![mgmn-2](https://github.com/lix19937/llm-deploy/assets/38753233/a319e764-4a18-4c12-b973-47bad419475c)
 
-
 -----------     
-TensorRT-LLM 目前提供了两种并行策略，Tensor Parallelism 和 Pipeline Parallelism。TP 是垂直地分割模型然后将各个部分置于不同的设备上，这样会引入设备之间频繁的数据通讯，一般用于设备之间有高度互联的场景，如 NVLINK。另一种分割方式是横向切分，此时只有一个横前面，对应通信方式是点对点的通信，适合于设备通信带宽较弱的场景。    
-![tp-pp](https://github.com/lix19937/llm-deploy/assets/38753233/e0161bac-4426-4614-8511-2603625958b2)
-
+TensorRT-LLM 目前提供了两种并行策略，Tensor Parallelism 和 Pipeline Parallelism。TP 是垂直地分割模型然后将各个部分置于不同的设备上，这样会引入设备之间频繁的数据通讯，一般用于设备之间有高度互联的场景，如 NVLINK。另一种分割方式是横向切分，此时只有一个横前面，对应通信方式是点对点的通信，适合于设备通信带宽较弱的场景。      
+![tp-pp](https://github.com/lix19937/llm-deploy/assets/38753233/e0161bac-4426-4614-8511-2603625958b2)   
 
 --------------   
 最后一个要强调的特性是 **In-flight batching**。Batching 是提高推理性能一个比较常用的做法，但在 LLM 推理场景中，一个 batch 中每个 sample/request 的输出长度是无法预测的。如果按照静态batching的方法，一个batch的时延取决于 sample/request 中输出最长的那个。因此，虽然输出较短的 sample/request 已经结束，但是并未释放计算资源，其时延与输出最长的那个 sample/request 时延相同。In-flight batching 的做法是在已经结束的 sample/request 处插入新的 sample/request。这样，不但减少了单个 sample/request 的延时，避免了资源浪费问题，同时也提升了整个系统的吞吐。这是一种优化的调度技术，可以更有效地处理动态负载。它允许 TensorRT-LLM 在其他请求仍在进行时开始执行新请求，从而提高 GPU 利用率。   
-传统的 Batching 技术为 Static Batching 的，需要等 Batching 中所有序列推理完成后才能进行下一次批次。下图为一个输出最大 Token 为 8，Batch size 为 4 的推理过程，使用 Static Batching 技术。S3 序列在 T5 时刻就已经完成推理，但是需要等到 S2 序列在 T8 时刻推理完成后才会处理下一个 sequence，存在明显的资源浪费。    
+传统的 Batching 技术为 Static Batching 的，需要等 Batching 中所有序列推理完成后才能进行下一次批次。下图为一个输出最大 Token 为 8，Batch size 为 4 的推理过程，使用 Static Batching 技术。S3 序列在 T5 时刻就已经完成推理，但是需要等到 S2 序列在 T8 时刻推理完成后才会处理下一个 sequence，存在明显的资源浪费。     
 ![Static-Batching](https://github.com/lix19937/llm-deploy/assets/38753233/ed8938bf-f6db-4569-aa55-8a417e8269e6)
 
-In-flight batching 又名 Continuous Batching 或 iteration-level batching，该技术可以提升推理吞吐率，降低推理时延。Continuous Batching 处理过程如下，当 S3 序列处理完成后插入一个新序列 S5 进行处理，提升资源利用率。详情可参考论文 Orca: A Distributed Serving System for Transformer-Based Generative Models。      
+In-flight batching 又名 Continuous Batching 或 iteration-level batching，该技术可以提升推理吞吐率，降低推理时延。Continuous Batching 处理过程如下，当 S3 序列处理完成后插入一个新序列 S5 进行处理，提升资源利用率。详情可参考论文 Orca: A Distributed Serving System for Transformer-Based Generative Models。        
 ![Continuous-Batching](https://github.com/lix19937/llm-deploy/assets/38753233/436b6f36-b1ea-4a49-84b0-ebb09e01afd4)
-
 
 ![in-flight-batching](https://github.com/lix19937/llm-deploy/assets/38753233/f8acd396-0828-460d-9339-a5210023617a)
 
 --------------     
 ## TensorRT-LLM 的使用流程    
-TensorRT-LLM 与 TensorRT的 使用方法类似，首先需要获得一个预训练好的模型，然后利用 TensorRT-LLM 提供的 API 对模型计算图进行改写和重建，接着用 TensorRT 进行编译优化，然后保存为序列化的 engine 进行推理部署。   
+TensorRT-LLM 与 TensorRT的 使用方法类似，首先需要获得一个预训练好的模型，然后利用 TensorRT-LLM 提供的 API 对模型计算图进行改写和重建，接着用 TensorRT 进行编译优化，然后保存为序列化的 engine 进行推理部署。    
 ![how-to-use](https://github.com/lix19937/llm-deploy/assets/38753233/370ee07d-c7e6-4b8f-aae2-0456fc36b553)
 
 ---------------    
