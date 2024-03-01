@@ -43,7 +43,7 @@ TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界�
 |W4A16  |INT4, FP16|  模型权重为 INT4，激活层为 FP16 精度 |    
 |W8A16  |INT8, FP16|  模型权重为 INT8，激活层为 FP16 精度 |    
 |W4A16 AWQ|INT4, FP16| AWQ 论文中提到的量化方法 |    
-|W4A16 GPTQ|INT4, FP16| GPTQ 两篇论文中提到的量化方法  |       
+|W4A16 GPTQ|INT4, FP16| GPTQ 论文中提到的量化方法  |       
 
 -------   
 另外一个特性就是 **FMHA(fused multi-head attention) kernel** 的实现。由于 Transformer 中最为耗时的部分是 self-attention 的计算，因此官方设计了 FMHA 来优化 self-attention 的计算，并提供了累加器分别为 fp16 和 fp32 不同的版本。另外，除了速度上的提升外，对内存的占用也大大降低。我们还提供了基于 flash attention 的实现，可以将 sequence-length 扩展到任意长度。
