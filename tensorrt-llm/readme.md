@@ -5,6 +5,9 @@ TensorRT-LLM 是 NVIDIA 用于做 LLM（Large Language Model）的可扩展推�
 + 利用了 NCCL 完成设备之间的通讯      
 + 考虑到技术的发展和需求的差异，开发者还可以定制算子来满足定制需求，比如基于 cutlass 开发定制 GEMM       
 
+## 背景    
+当前 LLM 模型推理的主要瓶颈是 GPU 显存资源不足。因此，各类加速框架主要集中于降低 GPU 显存峰值和提高 GPU 使用率两大目标。
+
 ---------   
 ## 核心技术    
 + FMHA kernel     
