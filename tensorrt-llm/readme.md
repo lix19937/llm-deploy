@@ -5,3 +5,8 @@ TensorRT-LLM 是 NVIDIA 用于做 LLM（Large Language Model）的可扩展推�
 + 借鉴了许多 FastTransformer 中高效的 Kernels 实现，   
 + 利用了 NCCL 完成设备之间的通讯。
 + 考虑到技术的发展和需求的差异，开发者还可以定制算子来满足定制需求，比如基于 cutlass 开发定制 GEMM       
+
+
+除了绿色 TensorRT 编译部分和一些涉及硬件信息的 kernels 外，其他部分都是开源的     
+![v2-7353108f2e22fea040d375925ac73a1b_r](https://github.com/lix19937/llm-deploy/assets/38753233/27393e78-31c9-4ed1-b7ac-1963ef89f766)
+ 
