@@ -100,7 +100,12 @@ TensorRT-LLM 目前提供了两种并行策略，Tensor Parallelism 和 Pipeline
 --------------   
 最后一个要强调的特性是 **In-flight batching**。Batching 是提高推理性能一个比较常用的做法，但在 LLM 推理场景中，一个 batch 中每个 sample/request 的输出长度是无法预测的。如果按照静态batching的方法，一个batch的时延取决于 sample/request 中输出最长的那个。因此，虽然输出较短的 sample/request 已经结束，但是并未释放计算资源，其时延与输出最长的那个 sample/request 时延相同。In-flight batching 的做法是在已经结束的 sample/request 处插入新的 sample/request。这样，不但减少了单个 sample/request 的延时，避免了资源浪费问题，同时也提升了整个系统的吞吐。这是一种优化的调度技术，可以更有效地处理动态负载。它允许 TensorRT-LLM 在其他请求仍在进行时开始执行新请求，从而提高 GPU 利用率。   
 传统的 Batching 技术为 Static Batching 的，需要等 Batching 中所有序列推理完成后才能进行下一次批次。下图为一个输出最大 Token 为 8，Batch size 为 4 的推理过程，使用 Static Batching 技术。S3 序列在 T5 时刻就已经完成推理，但是需要等到 S2 序列在 T8 时刻推理完成后才会处理下一个 sequence，存在明显的资源浪费。    
+![Static-Batching](https://github.com/lix19937/llm-deploy/assets/38753233/ed8938bf-f6db-4569-aa55-8a417e8269e6)
+
 In-flight batching 又名 Continuous Batching 或 iteration-level batching，该技术可以提升推理吞吐率，降低推理时延。Continuous Batching 处理过程如下，当 S3 序列处理完成后插入一个新序列 S5 进行处理，提升资源利用率。详情可参考论文 Orca: A Distributed Serving System for Transformer-Based Generative Models。      
+![Continuous-Batching](https://github.com/lix19937/llm-deploy/assets/38753233/436b6f36-b1ea-4a49-84b0-ebb09e01afd4)
+
+
 ![in-flight-batching](https://github.com/lix19937/llm-deploy/assets/38753233/f8acd396-0828-460d-9339-a5210023617a)
 
 
