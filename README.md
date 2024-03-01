@@ -39,7 +39,7 @@ Inference服务关注两个指标：**Latency** 和 **Throughput**。  这两个
 简单计算，对于一次请求来说：latency=batch_size * output sequence length / Throughput. 提升batch_size会提升Throughput，但Throughput与batch_size并不是同比例增大的，因此导致Latency随着batch_size增大而增大。
 
 ### Inference过程   
-2个阶段 Prefill Phase和 Decoding Phase（ FlexGen 中讲的比较清楚）。    
+2个阶段 Prefill Phase和 Decoding Phase（见FlexGen）       
 
 |阶段 | 说明|  
 |----| ----|   
