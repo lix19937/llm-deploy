@@ -25,17 +25,15 @@ TensorRT-LLM 是 NVIDIA 用于做 LLM（Large Language Model）的可扩展推�
 ![v2-7353108f2e22fea040d375925ac73a1b_r](https://github.com/lix19937/llm-deploy/assets/38753233/e832b292-7445-4cbb-95fa-503f41a57ada)
 
 -------   
-TensorRT-LLM 还提供了类似于 Pytorch 的 API 来降低开发者的学习成本，并提供了许多预定义好的模型供用户使用。   
+TensorRT-LLM 还提供了类 Pytorch 的 API 来降低开发者的学习成本，并提供了许多预定义好的模型供用户使用。   
 ![v2-7353108f2e22fea040d375925ac73a1b_r](https://github.com/lix19937/llm-deploy/assets/38753233/45792237-010d-40ae-acfa-fc1157b95219)
 
 -------   
 考虑到大语言模型比较大，有可能单卡放不下，需要多卡甚至多机推理，因此 TensorRT-LLM 还提供了 Tensor Parallelism 和 Pipeline Parallelism 两种并行机制来支持多卡或多机推理。 ![mgmn](https://github.com/lix19937/llm-deploy/assets/38753233/f09de4e5-d167-4ba5-81a9-d8a087a1b66d)     
   
-
 -------   
 TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界的量化方法，使用硬件吞吐更高的低精度推理进一步推升推理性能。    
 ![precision](https://github.com/lix19937/llm-deploy/assets/38753233/f315a3fe-5de9-43de-a4fa-a346068a15ce)
-
 
 |类型|说明 | 备注 W weight; A activate   |   
 |----|----| ------|   
@@ -76,7 +74,6 @@ INT8 weight-only 直接把权重量化到 INT8，但是激活值还是保持为 
 -------   
 SmoothQuant 通过先对激活值做平滑操作即除以一个scale将对应分布进行压缩，同时为了保证等价性，需要对权重乘以相同的 scale。之后，权重和激活都可以量化。对应的存储和计算精度都可以是 INT8 或者 FP8，可以利用 INT8 或者 FP8 的 TensorCore 进行计算。在实现细节上，权重支持 Per-tensor 和 Per-channel 的量化，激活值支持 Per-tensor 和 Per-token 的量化。
 ![smooth-q-2](https://github.com/lix19937/llm-deploy/assets/38753233/b944fc71-abde-4e05-8bab-adbf89e3093b)
-
 
 -------   
 第三个量化方法是 GPTQ，一种逐层量化的方法，通过最小化重构损失来实现。GPTQ 属于 weight-only 的方式，计算采用 FP16 的数据格式。该方法用在量化大模型时，由于量化本身开销就比较大，所以作者设计了一些 trick 来降低量化本身的开销，比如 Lazy batch-updates 和以相同顺序量化所有行的权重。GPTQ 还可以与其他方法结合使用如 grouping 策略。并且，针对不同的情况，TensorRT-LLM 提供了不同的实现优化性能。具体地，对 batch size 较小的情况，用 cuda core 实现；相对地，batch size 较大时，采用 tensor core 实现。   
