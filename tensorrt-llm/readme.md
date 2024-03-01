@@ -25,3 +25,6 @@ TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界�
 
 
 另外一个 Kernel 是 MMHA(Masked Multi-Head Attention)。FMHA 主要用在 context phase 阶段的计算，而 MMHA 主要提供 generation phase 阶段 attention 的加速，并提供了 Volta 和之后架构的支持。相比 FastTransformer 的实现，TensorRT-LLM 有进一步优化，性能提升高达 2x。    
+
+
+另外一个重要特性是量化技术，以更低精度的方式实现推理加速。常用量化方式主要分为 PTQ(Post Training Quantization)和 QAT(Quantization-aware Training)，对于 TensorRT-LLM 而言，这两种量化方式的推理逻辑是相同的。对于 LLM 量化技术，一个重要的特点是算法设计和工程实现的 co-design，即对应量化方法设计之初，就要考虑硬件的特性。否则，有可能达不到预期的推理速度提升。  
