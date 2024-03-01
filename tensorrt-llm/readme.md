@@ -54,12 +54,11 @@ TensorRT-LLM 默认采用 FP16/BF16 的精度推理，并且可以利用业界�
 ![fmha-2](https://github.com/lix19937/llm-deploy/assets/38753233/37886aca-afba-4aad-b966-f16188f88dd9)
 
 Attention 机制用于从序列中提取关键/重要信息，在情感识别、翻译、问答等任务中起着至关重要的作用。Attention 机制按照演进顺序可以分为 MHA（Multi-head Attention）、MQA（Multi-query Attention） 以及 GQA（Group-query Attention）机制。MQA 和 GQA 都是 MHA 的变种。   
-![GQA](https://github.com/lix19937/llm-deploy/assets/38753233/83397433-d543-440d-87ee-29de519ed7d5)
+![GQA](https://github.com/lix19937/llm-deploy/assets/38753233/6aae2b31-4b15-4133-9486-5d8f23a5538d)
 
 + MHA 是标准的多头注意力机制，每个 query 存储一份 KV，因此需要使用较多的显存。    
 + MQA 所有 query 共享一份 KV，推理时容易丢失一些细节信息。   
 + GQA 将 query 进行分组，组内共享一份 KV，可以有效避免 MHA 和 MQA 的问题。      
-![GQA](https://github.com/lix19937/llm-deploy/assets/38753233/6aae2b31-4b15-4133-9486-5d8f23a5538d)
 
 TensorRT-LLM 支持 MHA、MQA 及 GQA 方式，可以在 tensorrt_llm.functional.gpt_attention 查看具体实现。
 
