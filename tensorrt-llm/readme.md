@@ -63,16 +63,6 @@ Attention 机制用于从序列中提取关键/重要信息，在情感识别、
 
 TensorRT-LLM 支持 MHA、MQA 及 GQA 方式，可以在 tensorrt_llm.functional.gpt_attention 查看具体实现。
 
-作者：阿里云云原生
-链接：https://juejin.cn/post/7327121518549942282
-来源：稀土掘金
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-
-作者：阿里云云原生
-链接：https://juejin.cn/post/7327121518549942282
-来源：稀土掘金
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-
 -------   
 另外一个 Kernel 是 MMHA(Masked Multi-Head Attention)。FMHA 主要用在 context phase 阶段的计算，而 MMHA 主要提供 generation phase 阶段 attention 的加速，并提供了 Volta 和之后架构的支持。相比 FastTransformer 的实现，TensorRT-LLM 有进一步优化，性能提升高达 2x。    
 ![mmha](https://github.com/lix19937/llm-deploy/assets/38753233/4f01889a-d50f-49f0-8bb2-113b938a20ff)
@@ -128,38 +118,28 @@ In-flight batching 又名 Continuous Batching 或 iteration-level batching，该
 
 ![in-flight-batching](https://github.com/lix19937/llm-deploy/assets/38753233/f8acd396-0828-460d-9339-a5210023617a)
 
-
-
 --------------     
 ## TensorRT-LLM 的使用流程    
 TensorRT-LLM 与 TensorRT的 使用方法类似，首先需要获得一个预训练好的模型，然后利用 TensorRT-LLM 提供的 API 对模型计算图进行改写和重建，接着用 TensorRT 进行编译优化，然后保存为序列化的 engine 进行推理部署。   
 ![how-to-use](https://github.com/lix19937/llm-deploy/assets/38753233/370ee07d-c7e6-4b8f-aae2-0456fc36b553)
 
-
 ---------------    
 以 Llama 为例，首先安装 TensorRT-LLM，然后下载预训练模型，接着利用 TensorRT-LLM 对模型进行编译，最后进行推理。     
 ![how-to-use--llama](https://github.com/lix19937/llm-deploy/assets/38753233/958d56f5-a331-4357-b676-7e4490d35780)
-
 
 ---------------     
 对于模型推理的调试，TensorRT-LLM 的调试方式与 TensorRT 一致。由于深度学习编译器，即 TensorRT，提供的优化之一是 layer 融合。因此，如果要输出某层的结果，就需要将对应层标记为输出层，以防止被编译器优化掉，然后与 baseline 进行对比分析。同时，每标记一个新的输出层，都要重新编译 TensorRT 的 engine。   
 ![how-to-debug](https://github.com/lix19937/llm-deploy/assets/38753233/3f7b6cc2-c0cb-41fa-99fc-66bb889a0417)
 
-
 ------------    
 对于自定义的层，TensorRT-LLM 提供了许多 Pytorch-like 算子帮助用户实现功能而不必自己编写 kernel。如样例所示，利用 TensorRT-LLM 提供的 API 实现了 rms norm 的逻辑，TensorRT 会自动生成 GPU 上对应的执行代码。    
 ![how-to-add-custom-op](https://github.com/lix19937/llm-deploy/assets/38753233/64d0e615-d6e7-4a5b-9921-1af500d24059)
-
 
 -----------------   
 如果用户有更高的性能需求或者 TensorRT-LLM 并未提供实现相应功能的 building blocks，此时需要用户自定义 kernel，并封装为 plugin 供 TensorRT-LLM 使用。示例代码是将 SmoothQuant 定制 GEMM 实现并封装成 plugin 后，供 TensorRT-LLM 调用的示例代码。  
 ![how-to-add-custom-op-2](https://github.com/lix19937/llm-deploy/assets/38753233/c928c44a-f903-4228-8834-af3352c1f834)
 
-
-
-
-LLM 是一个推理成本很高、成本敏感的场景。我们认为，为了实现下一个百倍的加速效果，需要算法和硬件的共同迭代，通过软硬件之间 co-design 来达到这个目标。硬件提供更低精度的量化，而软件角度则利用优化量化、网络剪枝等算法，来进一步提升性能。   
-
+LLM 是一个推理成本很高、成本敏感的场景。为了实现下一个百倍的加速效果，需要算法和硬件的共同迭代，通过软硬件之间 co-design 来达到这个目标。硬件提供更低精度的量化，而软件角度则利用优化量化、网络剪枝等算法，来进一步提升性能。   
 
 ## 问答环节     
 Q1：是否每一次计算输出都要反量化？做量化出现精度溢出怎么办？   
