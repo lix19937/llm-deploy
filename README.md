@@ -41,6 +41,13 @@ latency=batch_size * output_sequence_length / Throughput
 ```
 提升batch_size会提升Throughput，但Throughput与batch_size并不是同比例增大的，因此导致Latency随着batch_size增大而增大。
 
+### 优化方法   
+
+|优化方向| 方法|     
+|---    |---  |     
+|Latency|优化底层的OP算子（高效kernel，如FMHA）、矩阵优化、并行、更高效的C++解码等，如FasterTransformer以及DeepSpeed。针对Latency的优化可以提升Throughput，但没有直接用batch_size提升的更显著。<br><br> **量化技术**，如gptq |     
+|Throughput|主要是**KV Cache存取优化**，将transformer attention计算中的Key和Value张量集合缓存下来，避免每输出一个token都重复计算。本质是降低显存开销，从而可以提升batch size。这方面工作相对多一些，如**offloading技术**，就是如何高效利用第三方存储CPU/DRAM/Disk，使得GPU显存能空出来进而增大batch_size。<br><br> 如vLLM中的 **PagedAttention** 技术就是借鉴OS中的分页以及虚拟存储思想实现显存动态分配，也能节省很多显存空间。<br>如**continuous batching**，变传统的static batch为动态可复用的batch分配，同样也能尽可能扩大batch_size，进而提升Throughput。|    
+
 ### Inference过程   
 2个阶段 Prefill Phase和 Decoding Phase（见FlexGen）       
 
@@ -63,13 +70,6 @@ KV Cache的占用为4 * batch_size * layer_num * hidden_size * ( input_length + 
 以OPT-175B 为例（layer_num = 96, hidden_size = 12288, MLP_hidden_size = 49152，batch_size=512，input_length=512, output length=32)。   
 
 Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是非常惊人。里面唯一可以调节的参数是batch_size，显存占用基本与batch_size呈正比关系。显存的大小限制了batch_size，而batch_size的大小就限制了Throughput。因此就有很多加速工作就是想办法节省显存，进而扩大batch_size。
-
-### 优化方法   
-
-|优化方向| 方法|     
-|---    |---  |     
-|Latency|优化底层的OP算子（高效kernel，如FMHA）、矩阵优化、并行、更高效的C++解码等，如FasterTransformer以及DeepSpeed。针对Latency的优化可以提升Throughput，但没有直接用batch_size提升的更显著。<br><br> **量化技术**，如gptq |     
-|Throughput|主要是**KV Cache存取优化**，将transformer attention计算中的Key和Value张量集合缓存下来，避免每输出一个token都重复计算。本质是降低显存开销，从而可以提升batch size。这方面工作相对多一些，如**offloading技术**，就是如何高效利用第三方存储CPU/DRAM/Disk，使得GPU显存能空出来进而增大batch_size。<br><br> 如vLLM中的 **PagedAttention** 技术就是借鉴OS中的分页以及虚拟存储思想实现显存动态分配，也能节省很多显存空间。<br>如**continuous batching**，变传统的static batch为动态可复用的batch分配，同样也能尽可能扩大batch_size，进而提升Throughput。|    
 
 ### 一些主流加速框架   
 
