@@ -82,6 +82,8 @@ Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是�
 |FlexGen  |Stanford/UC Berkeley/CMU/META  | Throughput| 在有限资源情况下如何高效利用CPU/Disk以提升Throughput  | -  |  
 |Hugging Face pipeline Accelerate  |HuggingFace | Latency| distributed Inference （https://huggingface.co/docs/accelerate/usage_guides/distributed_inference）| -  |  
 
+-------------------------------------------------------
+
 要想最大化提升推理的性能，必须得先了解机器的算力资源以及其峰值算力，优化的过程其实就是不断逼近峰值算力的过程。本文我们仅讨论使用GPU进行推理的场景。图1 中是A10的核心参数，从右侧SPECIFICATIONS中可以看到其FP32最大算力是31.2TFLOPS, Memory BandWidth为600GB/s, 但是这个数值是如何得来的呢？
 ```
 峰值算力公式：单核单周期计算次数 × 处理核（cuda core）个数 × 主频
@@ -99,6 +101,24 @@ Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是�
 如何判断程序是compute-bound还是memory-bound。假设一个函数的执行通常经过以下流程：1）从memory中读取input。2）执行算术运算。3）将output写回memory。由于公式不好编辑，我这里直接把公式放到贴图里了，当然这只是一种简单的计算方法，
 ![compute-io](https://github.com/lix19937/llm-deploy/assets/38753233/21acbe98-463b-43b7-b69d-d66e4e93c8ff)
 
+让我们来看看深度神经网络的一些具体例子，如下表1所示。对于这些例子，我们将比较在V100上算法的算术强度与操作数与字节比. V100的峰值数学运算速率为125 FP16 Tensor TFLOPS，片外存储器带宽约为900 GB / s，片上L2带宽为3. 1 TB / s，使其操作数与字节比率在40和139之间，取决于操作数据的来源（片上或片外存储器)。
+![op-bytes](https://github.com/lix19937/llm-deploy/assets/38753233/a2a38029-1e5c-4eb9-8b26-ddc807b244c9)
+
+如表所示，许多常见操作的**算术强度**都很低，有时仅对从内存读取并写入内存的每个2字节元素执行一个操作。请注意，这种分析方法是一种简化，因为我们只计算所使用的算法运算。实际上，函数还包含算法中没有明确表示的操作指令，如内存访问指令、地址计算指令、控制流指令等。
+
+算术强度和操作：字节比分析假设工作负载足够大，足以使给定处理器的数学和内存管道饱和。但是，如果工作负载不够大，或者没有足够的并行性，则处理器的利用率将不足，性能将受到延迟的限制。例如，考虑启动一个线程，该线程将访问16个字节并执行16000个数学运算。虽然算术强度为1000 FLOPS/B，并且在V100 GPU上的执行应该受到数学限制，但仅创建一个线程严重利用GPU不足，几乎所有的数学管道和执行资源都处于空闲状态。此外，算术强度计算假设从存储器访问输入和输出恰好一次。算法实现多次读取输入元素并不罕见，这将显著地降低运算强度。
+
+DNN中到底哪些算子是计算约束的，哪些又是内存约束的呢？   
+Elementwise 类型的算子，比如Relu、sigmoid, tanh, Reduction类型的算子比如 pooling、softmax、batchnorm等都属于memory-bound型  
+对于卷积、全连接这些，当batch size比较小时也都是memory-bound的。也就是说神经网络的大部分层都是memory-bound，而batch size可以有效减少memory io次数，所以推理时增加batch size可以显著提升吞吐量。
+
+## 主流优化方案的底层原理
+
++ 算子融合。不管是tensorrt、fastertransformer、还是tensorflow、onnx，在图优化阶段都会有算子融合的优化手段，融合后的算子，其计算量并没有减少，但是其的确可以提升模型的性能，为什么呢，这要从cuda程序的执行来说了，假如有A、B、C三个kernel代表三个算子，他们的执行顺序为A->B->C, kernel函数的执行是在gpu上计算的，但是kernel函数的启动是由cpu控制。每执行一个kernel，cpu需要调用cuda driver来执行LaunchKernel的操作，今年GTC2023，英伟达介绍SwinTransformer里有提到，Launch Kernel之间会存在1us+的开销，如果将A\B\C合成一个算子，那么可以减少两次kernel launch的时间。另外kernel函数的输入和输出都是暂存于DRAM（也就是全局内存中），拿最常见的conv+bn+relu来说，conv算子执行完之后需要把tensor写回DRAM,bn算子再从DRAM中读取tensor进行操作，之后再写回DRAM，接着relu再次从DRAM中读取bn算子写回的tensor，将A、B、C三个算子融合后，conv的执行结果无需写回DRAM中，将在寄存器或者L1 Cache/shared memory中直接参与bn的计算，L1 Cache的带宽是DRAM的10倍以上，所以算子融合可以大幅减少DRAM的访存次数，进而提升模型性能。      
++ 模型量化。模型量化可以降低模型参数占用显存的大小，但模型量化为什么可以多于两倍的性能提速呢。这需要从两个方面来解释，第一，比如由FP32精度量化到FP16精度，相同的访存带宽下可以读写两倍的操作数，同时一个FP32 cuda core也可以一次操作两个FP16的计算，第二，从volta架构以后，nvidia gpu引入了tensor core，这是转为矩阵计算提供的专门硬件，其性能是cuda core的数倍（可以参考：模型推理场景该如何选型GPU - 知乎 (zhihu.com)）。然而大部分神经网络的算子其内部多为一些GEMM操作，在使用低精度推理时都可以用上tensor core，所以模型量化效果会非常显著。
++ batch推理、多cuda流并行、并实例并行。这三个放在一块说主要是因为他们都可以同时处理多条请求，但是他们的底层原理并不一致。        
+![3way](https://github.com/lix19937/llm-deploy/assets/38753233/b2e2af5a-28af-4ec8-8629-cc34e40c2613)    
++ FlashAttention是一种创新的注意力计算方法，旨在提高计算效率、节省显存，并降低IO感知。这种方法有效地缓解了传统注意力机制在计算和内存管理方面的问题。FlashAttention并没有减少计算量FLOPs，但其创新之处在于，从IO感知的角度出发，减少了HBM（高带宽存储器）的访问次数。这种优化策略不仅提高了计算效率，还显著减少了计算时间的总体耗费。在论文中，作者使用了"wall-clock time"这个词，该词综合考虑了GPU运行耗时和IO读写阻塞时间。而FlashAttention通过运用tiling技术和算子融合，有效地降低了HBM的访问次数，从而显著减少了时钟时间。FlashAttention之所以能够实现高效的优化，是因为注意力操作是一种memory-bound操作。对于这类操作，减少HBM（DRAM）的访问次数是最有效的优化手段。因此，FlashAttention为解决注意力机制的计算效率和内存管理问题提供了一种新颖且实用的解决方案。
 
 ## gpu角度下dnn性能     
 [understand-perf ](https://docs.nvidia.com/deeplearning/performance/dl-performance-gpu-background/index.html#understand-perf)   
