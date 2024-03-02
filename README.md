@@ -51,9 +51,9 @@ Inference服务关注两个指标：**Latency** 和 **Throughput**。  这两个
 ### Inference量化分析      
 Inference的核心是KV Cache，以FP16为例，其对显存的占用量化分析如下。
 
-其对显存占用分为两块，一是Weights、二是KV Cache。
+其对显存占用分为两块，一是Weights、二是KV Cache。   
 ```
-Weights占用大约为layer_num * ( 8 * hidden_size * hidden_size + 4 * hidden_size * MLP_hidden_size )。  
+Weights占用大约为layer_num * ( 8 * hidden_size * hidden_size + 4 * hidden_size * MLP_hidden_size )。  head_num=8   
 KV Cache的占用为4 * batch_size * layer_num * hidden_size * ( input_length + output_length )。  
 ```
 以OPT-175B 为例（layer_num = 96, hidden_size = 12288, MLP_hidden_size = 49152，batch_size=512，input_length=512, output length=32)。   
