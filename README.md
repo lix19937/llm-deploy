@@ -37,7 +37,7 @@ https://developer.nvidia.com/blog/mastering-llm-techniques-inference-optimizatio
 高并发时，把用户的prompt合并扩大batch_size能提升Throughput，但会一定程度上损害每个用户的 Latency，因为以前只计算一个请求，现在合并计算多个请求，每个用户等待的时间就长了。从实际的测试结果可以看到，Throuput随着batch_size的增大而增大，但是latency是随着增大的，当然 Latency 在可接受范围内就是ok的。因此指标需要trade-off。     
 简单计算，对于一次请求来说：   
 ```py   
-latency=batch_size * output sequence length / Throughput
+latency=batch_size * output_sequence_length / Throughput
 ```
 提升batch_size会提升Throughput，但Throughput与batch_size并不是同比例增大的，因此导致Latency随着batch_size增大而增大。
 
