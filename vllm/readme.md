@@ -13,9 +13,9 @@
 ### 背景   
 + LLM 的推理，最大的瓶颈在于显存。
 + **自回归模型**的 keys 和 values 通常被称为 KV cache，这些 tensors 会存在 GPU 的显存中，用于生成下一个 token。这些 KV cache 都很大，并且大小是动态变化的，难以预测。已有的系统中，由于显存碎片和过度预留，浪费了60%-80%的显存。     
-> 自回归模型？ https://github.com/lix19937/dnn-cookbook/blob/main/doc/transformer.md    
-> 模型通常指仅使用解码器的Transformer模型。在每个阶段，对于给定的单词，注意力层只能获取到句子中位于将要预测单词前面的单词。预训练任务通常是Next word prediction，这种方式又被称为Causal language modeling。这个Causal就是“因果”的意思，对于decoder，它在训练时是无法看到全文的，只能看到前面的信息。这些模型通常被称为自回归模型。    
-  
+  > 自回归模型？ https://github.com/lix19937/dnn-cookbook/blob/main/doc/transformer.md    
+  > 模型通常指仅使用解码器的Transformer模型。在每个阶段，对于给定的单词，注意力层只能获取到句子中位于将要预测单词前面的单词。预训练任务通常是Next word prediction，这种方式又被称为Causal language modeling。这个Causal就是“因果”的意思，对于decoder，它在训练时是无法看到全文的，只能看到前面的信息。这些模型通常被称为自回归模型。    
+    
 ### 实现  
 受到操作系统中，虚拟内存和分页经典思想的启发。  
 PagedAttention 允许在不连续的内存空间中存储连续的 keys 和 values。   
