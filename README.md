@@ -98,7 +98,8 @@ Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是�
 
 ## 计算约束or 内存约束
 
-如何判断程序是compute-bound还是memory-bound。假设一个函数的执行通常经过以下流程：1）从memory中读取input。2）执行算术运算。3）将output写回memory。由于公式不好编辑，我这里直接把公式放到贴图里了，当然这只是一种简单的计算方法，
+如何判断程序是compute-bound还是memory-bound。假设一个函数的执行通常经过以下流程：   
+1）从memory中读取input。2）执行算术运算。3）将output写回memory       
 ![compute-io](https://github.com/lix19937/llm-deploy/assets/38753233/21acbe98-463b-43b7-b69d-d66e4e93c8ff)
 
 让我们来看看深度神经网络的一些具体例子，如下表1所示。对于这些例子，我们将比较在V100上算法的算术强度与操作数与字节比. V100的峰值数学运算速率为125 FP16 Tensor TFLOPS，片外存储器带宽约为900 GB / s，片上L2带宽为3. 1 TB / s，使其操作数与字节比率在40和139之间，取决于操作数据的来源（片上或片外存储器)。
