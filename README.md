@@ -81,7 +81,25 @@ Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是�
 |vLLM     |UC Berkeley| Throughput| paged attention，动态分配K-V Cache，提升Batch_size <br><br>KV cache占用大量GPU内存，一个13B模型每个输出token对应的KV张量，需要800KB，而最长输出长度2048个token的话，一个请求就需要1.6GB显存。因此vLLM引入类似操作系统中的分页机制，大幅减少了KV cache的碎片化，提高性能。 | -  |  
 |FlexGen  |Stanford/UC Berkeley/CMU/META  | Throughput| 在有限资源情况下如何高效利用CPU/Disk以提升Throughput  | -  |  
 |Hugging Face pipeline Accelerate  |HuggingFace | Latency| distributed Inference （https://huggingface.co/docs/accelerate/usage_guides/distributed_inference）| -  |  
-       
+
+要想最大化提升推理的性能，必须得先了解机器的算力资源以及其峰值算力，优化的过程其实就是不断逼近峰值算力的过程。本文我们仅讨论使用GPU进行推理的场景。图1 中是A10的核心参数，从右侧SPECIFICATIONS中可以看到其FP32最大算力是31.2TFLOPS, Memory BandWidth为600GB/s, 但是这个数值是如何得来的呢？
+```
+峰值算力公式：单核单周期计算次数 × 处理核（cuda core）个数 × 主频
+```
+比如A10: 2*1.7x10^9*9216/10^12=31.2TFLOPS
+```
+峰值带宽公式：内存主频 x 位宽x 2/ 8
+```
+比如A10:6251x10^6X384x2(DDR)/8=600GB/s
+
+从以上公式可以看出，必须所有的cuda core同时参与计算才可以达到峰值算力，这也给我们优化程序提供了思路，只有尽可能的提升cuda core的使用率，才可以更加的逼近峰值算力。不过影响程序的可能不仅是算力，还有可能是IO，很多时候会因为IO提前到达峰值而导致算力资源没有数据可算，这时就需要分析我们的程序是计算约束还是访存约束了。
+
+## 计算约束or 内存约束
+
+如何判断程序是compute-bound还是memory-bound。假设一个函数的执行通常经过以下流程：1）从memory中读取input。2）执行算术运算。3）将output写回memory。由于公式不好编辑，我这里直接把公式放到贴图里了，当然这只是一种简单的计算方法，
+![compute-io](https://github.com/lix19937/llm-deploy/assets/38753233/21acbe98-463b-43b7-b69d-d66e4e93c8ff)
+
+
 ## gpu角度下dnn性能     
 [understand-perf ](https://docs.nvidia.com/deeplearning/performance/dl-performance-gpu-background/index.html#understand-perf)   
 解读     
