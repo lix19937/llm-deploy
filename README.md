@@ -15,7 +15,7 @@ https://lilianweng.github.io/posts/2023-01-10-inference-optimization/#distillati
 -------------------------------   
 https://developer.nvidia.com/blog/mastering-llm-techniques-inference-optimization/
 
-LLM Inference要做好需要算法以及工程系统性合作，会涉及到以下一些技术方向：    
+LLM Inference 要做好算法与工程的协作，涉及到以下一些技术方向：    
 
 |方向/技术点|说明 |   
 |----------|----|   
@@ -25,8 +25,7 @@ LLM Inference要做好需要算法以及工程系统性合作，会涉及到以�
 |高并发处理和优化|负载均衡，batch_size调优等|   
 |系统底层相关|不同显卡型号、底层GPU驱动、内存管理、算子等|   
 |其他工程相关|GPU集群管理，稳定性，日常维护等|   
-
-下面先主要看下Inference核心部分          
+         
 ### Inference优化目标    
 Inference服务关注两个指标：**Latency** 和 **Throughput**。  这两个指标一般情况下需要**trade-off**。    
   
