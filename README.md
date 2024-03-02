@@ -37,7 +37,7 @@ latency=batch_size * output_sequence_length / Throughput
 
 ### 优化方法   
 
-|优化方向| 方法|     
+|指标| 方法|     
 |---    |---  |     
 |Latency|优化底层的OP算子（高效kernel，如FMHA）、矩阵优化、并行、更高效的C++解码等，如FasterTransformer以及DeepSpeed。针对Latency的优化可以提升Throughput，但没有直接用batch_size提升的更显著。<br><br> **量化技术**，如gptq |     
 |Throughput|主要是**KV Cache存取优化**，将transformer attention计算中的Key和Value张量集合缓存下来，避免每输出一个token都重复计算。本质是降低显存开销，从而可以提升batch size。这方面工作相对多一些，如**offloading技术**，就是如何高效利用第三方存储CPU/DRAM/Disk，使得GPU显存能空出来进而增大batch_size。<br><br> 如vLLM中的 **PagedAttention** 技术就是借鉴OS中的分页以及虚拟存储思想实现显存动态分配，也能节省很多显存空间。<br>如**continuous batching**，变传统的static batch为动态可复用的batch分配，同样也能尽可能扩大batch_size，进而提升Throughput。|    
