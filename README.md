@@ -34,7 +34,7 @@ https://developer.nvidia.com/blog/mastering-llm-techniques-inference-optimizatio
 | Latency | 关注服务体验，也就是返回结果要快，用户体验好。 <br><br> 延时，主要从用户的视角来看，也就是用户提交一个prompt，然后得到response的时间。特殊情况batch_size=1只给一个用户进行服务，Latency是最低的。计算方法为生成一个token所需要的单位时间数，如16 ms/token。 |   
 | Throughput |关注系统成本，高Throughput则系统单位时间处理的量就大，系统利用率高，但是会影响latency。<br><br> 吞吐率，主要是从系统的角度来看，单位时间内能处理的tokens数，如16 tokens/sec。扩大Throughput的方法一般就是提升Batch_size，也就是将一个一个用户的请求由之前的串行改为并行。    |   
 
-高并发时，把用户的prompt合并扩大batch_size能提升Throughput，但会一定程度上损害每个用户的latency，因为以前只计算一个请求，现在合并计算多个请求，每个用户等待的时间就长了。从实际的测试结果可以看到，Throuput随着batch_size的增大而增大，但是latency是随着减小的，当然Latency在可接受范围内就是ok的。因此指标需要trade-off。     
+高并发时，把用户的prompt合并扩大batch_size能提升Throughput，但会一定程度上损害每个用户的 Latency，因为以前只计算一个请求，现在合并计算多个请求，每个用户等待的时间就长了。从实际的测试结果可以看到，Throuput随着batch_size的增大而增大，但是latency是随着增大的，当然 Latency 在可接受范围内就是ok的。因此指标需要trade-off。     
 简单计算，对于一次请求来说：   
 ```py   
 latency=batch_size * output sequence length / Throughput
