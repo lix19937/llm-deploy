@@ -27,7 +27,7 @@ LLM Inference 要做好算法与工程的协作，涉及到以下一些技术方
 |其他工程相关|GPU集群管理，稳定性，日常维护等|   
          
 ### Inference优化目标    
-Inference服务关注两个指标：**Latency** 和 **Throughput**。  这两个指标一般情况下需要**trade-off**。    
+关注2个指标：**Latency** 和 **Throughput**。这两个指标一般情况下需要**trade-off**。    
   
 |指标 | 说明 |   
 |---- | ----|   
