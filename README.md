@@ -15,7 +15,7 @@ https://lilianweng.github.io/posts/2023-01-10-inference-optimization/#distillati
 -------------------------------   
 https://developer.nvidia.com/blog/mastering-llm-techniques-inference-optimization/
 
-LLM Inference 要做好算法与工程的协作，涉及到以下一些技术方向：    
+## LLM Inference --算法与工程的协作       
 
 |方向/技术点|说明 |   
 |----------|----|   
