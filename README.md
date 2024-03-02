@@ -55,8 +55,9 @@ Inference的核心是KV Cache，以FP16为例，其对显存的占用量化分�
 ```
 Weights占用大约为layer_num * ( 8 * hidden_size * hidden_size + 4 * hidden_size * MLP_hidden_size )。  
 KV Cache的占用为4 * batch_size * layer_num * hidden_size * ( input_length + output_length )。  
+```
 以OPT-175B 为例（layer_num = 96, hidden_size = 12288, MLP_hidden_size = 49152，batch_size=512，input_length=512, output length=32)。   
-```   
+
 Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是非常惊人。里面唯一可以调节的参数是batch_size，显存占用基本与batch_size呈正比关系。显存的大小限制了batch_size，而batch_size的大小就限制了Throughput。因此就有很多加速工作就是想办法节省显存，进而扩大batch_size。
 
 ### 优化方法   
