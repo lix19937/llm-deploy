@@ -1,7 +1,7 @@
 ## LLM 推理加速   
 
-![acc](./2016-openvx-api-slide6.png)   
-
+![2016-openvx-api-slide6](https://github.com/lix19937/llm-deploy/assets/38753233/e9dd22fe-6206-485d-af68-83ac53fd1ed0)
+  
 * cnn-based(backbone) + cnn(head) [tensorrt](https://github.com/lix19937/trt-samples-for-hackathon-cn/blob/master/cookbook/readme_cn.md)     
 基于TRT，自定义插件完成低效模块的计算，最终仍back到TRT中   
 
