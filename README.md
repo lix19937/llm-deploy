@@ -75,7 +75,7 @@ Weights差不多占用 325G, KV cache 差不多占用 1.2T。对内存消耗是�
 
 | 名称| 出品方| 主打| 方法  |  备注  |     
 | ----|------| ----| ---- | -------|    
-| FasterTransformer| Nvidia | Latency| 90%的时间消耗在12层Transformer的前向计算上，总结优化点如下：https://zhuanlan.zhihu.com/p/79528308<br>为了减少kernel调用次数，将除了矩阵乘法的kernel都尽可能合并（这个可能是主要的）<br>针对大batch单独进行了kernel优化<br>支持选择最优的矩阵乘法（启发式搜索与cutlass）<br>在使用FP16时使用half2类型，达到half两倍的访存带宽和计算吞吐<br>优化gelu、softmax、layernorm的实现以及选用rsqrt等 <br>使用硬件加速的底层函数   | - |       
+| FasterTransformer| Nvidia | Latency| 90%的时间消耗在12层Transformer的前向计算上，总结优化点如下：https://zhuanlan.zhihu.com/p/79528308<br>为了减少kernel调用次数，将除了矩阵乘法的kernel都尽可能合并（这个可能是主要的）<br>针对大batch单独进行了kernel优化<br>支持选择最优的矩阵乘法（启发式搜索与cutlass）<br>在使用FP16时使用half2类型，达到half两倍的访存带宽和计算吞吐<br>优化gelu、softmax、layernorm的实现以及选用rsqrt等 <br>使用硬件加速的底层函数，如__expf、__shfl_xor_sync   | - |       
 |DeepSpeed|微软|Latency和 Throughput| 优化Latency：a multi-GPU inference solution.<br>parallelism：Tensor parallelism、Pipeline parallelism、Expert Parallelism（MoE）。对多机多卡之间的通信带宽要求较高 <br>communication optimization<br>optimized sparse kernels<br><br>优化Throughput：Zero-Inference也用到了offloading技术<br> 如何结合GPU显存以及其他外部存储设备如DRAM、NVMe等加载大模型，问题变为How to apportion GPU memory among model weights, inference inputs and intermediate results <br> 然后可以接受大的batch size，进而提升Throughput。| - |     
 |llama.cpp|ggerganov| Latency| offloading、高效C++解码 <br><br>面向消费级CPU/GPU的Inference框架，主打易用性，CPU支持 <br><br>GPU多核计算能力：通过调用CUDA、OpenCL等API，来利用GPU的并行能力。<br>CPU SIMD和多核：单指令多数据SIMD在x86上有SSEx和AVX等指令，在ARM上有NEON和SVE，都广泛被使用，也有库通过OpenMP再叠加多核能力。| -|      
 |vLLM     |UC Berkeley| Throughput| paged attention，动态分配K-V Cache，提升Batch_size <br><br>KV cache占用大量GPU内存，一个13B模型每个输出token对应的KV张量，需要800KB，而最长输出长度2048个token的话，一个请求就需要1.6GB显存。因此vLLM引入类似操作系统中的分页机制，大幅减少了KV cache的碎片化，提高性能。 | -  |  
