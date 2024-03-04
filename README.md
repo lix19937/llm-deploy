@@ -46,7 +46,7 @@ latency=batch_size * output_sequence_length / Throughput
 
 |阶段 | 说明|  
 |----| ----|   
-|Prefill Phase|预处理/Encoding。计算并缓存每一层的key和value，其他的不需要缓存。每一个请求的prompt需要经过这个阶段，它只计算一次，是并行计算的。这个缓存称为KV Cache，KV Cache是整个解码过程中最为核心关键的一块。|     
+|Prefill Phase|预处理/Encoding。计算并缓存每一层的key和value，其他的不需要缓存。每一个请求的prompt需要经过这个阶段，**它只计算一次，是并行计算的**。这个缓存称为KV Cache，KV Cache是整个解码过程中最为核心关键的一块。|     
 |Decoding Phase|生成新token阶段，它是串行的，也就是decode one by one。它用上一步生成的token，称为当前token放到input中，然后生成下一个token。具体包括两步，一是Lookup KV Cache计算并输出当前token最终embedding用来预测下一个token，二是缓存计算过程中得到的当前token在每一层的key和value，update到第一阶段Prefill Phase中的KV Cache中。|    
 
 这样划分（2个阶段 Prefill Phase和 Decoding Phase（见FlexGen））的好处是，每次解码，不需要对整个网络全部进行计算，`相当于计算复杂度从O(n^3)变为O(n)了`。Prefill Phase只需要计算一次，核心就是GPT-style的transformer是单向的，而不是双向的。每一个token只与它前面的tokens有关系，其key，value也只与它前面的tokens有关系，因此可以只计算一次且可以并行。后面decoding phase就很快了，避免了重复计算。整个的开销就只有key-value cache的update以及look-up的时间。   
