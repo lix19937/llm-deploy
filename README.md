@@ -112,7 +112,7 @@ Elementwise 类型的算子，比如Relu、sigmoid, tanh, Reduction类型的算�
 + 模型量化。模型量化可以降低模型参数占用显存的大小，但模型量化为什么可以多于两倍的性能提速呢。这需要从两个方面来解释，第一，比如由FP32精度量化到FP16精度，相同的访存带宽下可以读写两倍的操作数，同时一个FP32 cuda core也可以一次操作两个FP16的计算，第二，从volta架构以后，nvidia gpu引入了tensor core，这是转为矩阵计算提供的专门硬件，其性能是cuda core的数倍（可以参考：模型推理场景该如何选型GPU - 知乎 (zhihu.com)）。然而大部分神经网络的算子其内部多为一些GEMM操作，在使用低精度推理时都可以用上tensor core，所以模型量化效果会非常显著。
 + batch推理、多cuda流并行、并实例并行。这三个放在一块说主要是因为他们都可以同时处理多条请求，但是他们的底层原理并不一致。        
 ![3way](https://github.com/lix19937/llm-deploy/assets/38753233/b2e2af5a-28af-4ec8-8629-cc34e40c2613)    
-+ FlashAttention是一种创新的注意力计算方法，旨在提高计算效率、节省显存，并降低IO感知。这种方法有效地缓解了传统注意力机制在计算和内存管理方面的问题。FlashAttention并没有减少计算量FLOPs，但其创新之处在于，从IO感知的角度出发，减少了HBM（高带宽存储器）的访问次数。这种优化策略不仅提高了计算效率，还显著减少了计算时间的总体耗费。在论文中，作者使用了"wall-clock time"这个词，该词综合考虑了GPU运行耗时和IO读写阻塞时间。而FlashAttention通过运用tiling技术和算子融合，有效地降低了HBM的访问次数，从而显著减少了时钟时间。FlashAttention之所以能够实现高效的优化，是因为注意力操作是一种memory-bound操作。对于这类操作，减少HBM（DRAM）的访问次数是最有效的优化手段。因此，FlashAttention为解决注意力机制的计算效率和内存管理问题提供了一种新颖且实用的解决方案。
++ FlashAttention是一种创新的注意力计算方法，旨在提高计算效率、节省显存，并降低IO感知。这种方法有效地缓解了传统注意力机制在计算和内存管理方面的问题。FlashAttention并没有减少计算量FLOPs，但其创新之处在于，从IO感知的角度出发，减少了HBM（高带宽存储器）的访问次数。这种优化策略不仅提高了计算效率，还显著减少了计算时间的总体耗费。在论文中，作者使用了"wall-clock time"这个词，该词综合考虑了GPU运行耗时和IO读写阻塞时间。而FlashAttention通过**运用tiling技术和算子融合**，有效地降低了HBM的访问次数，从而显著减少了时钟时间。FlashAttention之所以能够实现高效的优化，是因为注意力操作是一种memory-bound操作。对于这类操作，减少HBM（DRAM）的访问次数是最有效的优化手段。因此，FlashAttention为解决注意力机制的计算效率和内存管理问题提供了一种新颖且实用的解决方案。
 
 ## gpu角度下dnn性能     
 [understand-perf ](https://docs.nvidia.com/deeplearning/performance/dl-performance-gpu-background/index.html#understand-perf)   
