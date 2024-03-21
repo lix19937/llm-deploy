@@ -20,7 +20,7 @@
 受到操作系统中，虚拟内存和分页经典思想的启发。  
 PagedAttention 允许在不连续的内存空间中存储连续的 keys 和 values。   
 
-具体来说，PagedAttention 会将每个序列的 KV cache 划分为块，每个块包含固定数量 tokens 的 keys 和 values。 在注意力计算过程中，PagedAttention 内核有效地识别并获取这些块。
+具体来说，PagedAttention 会将每个序列的 KV cache 划分为块，每个块包含固定数量 tokens 的 keys 和 values。在注意力计算过程中，PagedAttention 内核有效地识别并获取这些块。       
 分块之后，这些 KV cache 不再需要连续的内存，从而可以像在操作系统的虚拟内存中一样，更灵活地对这些 KV cache 进行管理。   
 
 PagedAttention 对于显存的利用接近理论上的最优值（浪费比例低于4%）。通过对显存进行更好的管理，可以使得单次可以使用更大的 batch size，从而进一步利用 GPU 的并行计算能力。
