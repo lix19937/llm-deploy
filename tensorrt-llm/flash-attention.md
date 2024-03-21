@@ -1,3 +1,26 @@
++ Execution Model   
+GPUs have a massive number of threads to execute an operation (called a kernel).
+`Each kernel loads inputs from HBM to registers and SRAM`, computes, then writes outputs to HBM.  
+
++ Performance characteristics  
+Depending on the balance of computation and memory accesses, operations
+can be classified as either compute-bound or memory-bound. This is commonly measured by the
+arithmetic intensity [85], which is the `number of arithmetic operations per byte of memory access`.  
+
++ Compute-bound
+the time taken by the operation is determined by how many arithmetic operations there
+are, while time accessing HBM is much smaller. Typical examples are matrix multiply with large inner
+dimension, and convolution with large number of channels.
+含有大量内乘的矩阵乘法，含有大量通道的卷积    
+
++ Memory-bound
+the time taken by the operation is determined by the number of memory accesses, while
+time spent in computation is much smaller. Examples include most other operations: elementwise (e.g.,
+activation, dropout), and reduction (e.g., sum, softmax, batch norm, layer norm).
+
++ Kernel fusion    
+The most common approach to accelerate memory-bound operations is kernel fusion: if there are multiple operations applied to the same input, the input can be loaded once from HBM, instead of multiple times for each operation. Compilers can automatically fuse many elementwise operations,However, in the context of model training, the intermediate values still need to be written to HBM to save for the backward pass, reducing the effectiveness of naive kernel fusion.
+
 
 核心思想：传统减少HBM的访问，将QKV切分为小块后放入SRAM中      
 核心方法：tiling, recomputation      
