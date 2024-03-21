@@ -19,7 +19,7 @@ softmax操作是row-wise的，即每行都算一次softmax，所以需要用分�
 则exp^(xi) 趋于 0，此时 softmax分母趋于0，下溢出。   
 ```
 
-FlashAttention算法的目标：在计算中减少显存占用，从O(N*N) 大小降低到线性，这样就可以把数据加载到SRAM中，提高IO速度。  
+FlashAttention算法的目标：在计算中减少显存占用，从O(N*N) 大小降低到线性，这样就可以把数据从HBM 加载到SRAM中，提高IO速度。  
 
 解决方案：传统Attention在计算中需要用到Q，K，V去计算S，P两个矩阵，FlashAttention引入softmax中的统计量( , ℓ)，结合output O和在SRAM中的Q，K，V块进行计算。
 
