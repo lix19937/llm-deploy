@@ -15,8 +15,8 @@ dimension, and convolution with large number of channels.
 
 + Memory-bound
 the time taken by the operation is determined by the number of memory accesses, while
-time spent in computation is much smaller. Examples include most other operations: elementwise (e.g.,
-activation, dropout), and reduction (e.g., sum, softmax, batch norm, layer norm).
+time spent in computation is much smaller. Examples include most other operations: `elementwise (e.g.,
+activation, dropout), and reduction (e.g., sum, softmax, batch norm, layer norm)`.
 
 + Kernel fusion    
 The most common approach to accelerate memory-bound operations is kernel fusion: if there are multiple operations applied to the same input, the input can be loaded once from HBM, instead of multiple times for each operation. Compilers can automatically fuse many elementwise operations,However, in the context of model training, the intermediate values still need to be written to HBM to save for the backward pass, reducing the effectiveness of naive kernel fusion.
