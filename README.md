@@ -117,6 +117,7 @@ Elementwise 类型的算子，比如Relu、sigmoid, tanh, Reduction类型的算�
 ## gpu角度下dnn性能     
 [understand-perf ](https://docs.nvidia.com/deeplearning/performance/dl-performance-gpu-background/index.html#understand-perf)   
 解读     
+https://docs.nvidia.com/deeplearning/performance/dl-performance-gpu-background/index.html
 
 
 https://zhuanlan.zhihu.com/p/649640010
