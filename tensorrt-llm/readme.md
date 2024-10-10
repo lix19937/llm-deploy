@@ -1,6 +1,8 @@
 
-[transformer 模块的算子间优化](transformer.md)     
-[transformer 模块的算子内融合](op_fusion.md)
+[transformer 模块的算子间优化](transformer.md)      
+[transformer 模块的算子内融合](op_fusion.md)    
+[flash-attention论文解读](flash-attention.md)   
+
 
 -----------------------------------------------------------------------------     
 
