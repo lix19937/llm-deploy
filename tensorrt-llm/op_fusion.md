@@ -23,7 +23,7 @@ A = relu(B + C)
 可能会减少launch kernel时间和重复访存 - 并行墙      
 保证计算图执行非CB部分的子图时也能充分利用设备的计算资源，这方面典型的工作是 TASO 和 RAMMER       
 将计算过程中互不依赖的低计算量子图打包为一个kernel并行计算以提升资源利用率即识别无计算依赖的算子做并行计算。这里的关键在于如何在避免组合爆炸的前提下对可以并行的子图分组。   
-![parallel_wall](parallel_wall.jpg)  
+![parallel_wall](img/parallel_wall.jpg)  
 
 
 https://arxiv.org/pdf/2108.13342.pdf     
