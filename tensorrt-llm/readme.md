@@ -1,5 +1,6 @@
 
-[transformer 模块的算子优化](transformer.md)
+[transformer 模块的算子间优化](transformer.md)     
+[transformer 模块的算子内融合](op_fusion.md)
 
 -----------------------------------------------------------------------------     
 
