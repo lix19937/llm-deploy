@@ -1,4 +1,8 @@
 
+[transformer 模块的算子优化](transformer.md)
+
+-----------------------------------------------------------------------------     
+
 TensorRT-LLM 是 NVIDIA 用于做 LLM（Large Language Model）的可扩展推理方案          
 + 该方案是基于 TensorRT 深度学习编译框架来构建、编译并执行计算图          
 + 借鉴了许多 FastTransformer 中高效的 Kernels 实现；   tensorrt-llm 与fastertransformer的关系 ？         
