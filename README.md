@@ -5,7 +5,7 @@
 |-------|----|----|  
 |cnn-based(backbone) + cnn(head)| [tensorrt](https://github.com/lix19937/trt-samples-for-hackathon-cn/blob/master/cookbook/readme_cn.md) 基于TRT，自定义插件完成低效模块的计算，最终仍back到TRT中 |-|    
 |transformer-based(decoder)| [tensorrt-llm](tensorrt-llm/readme.md)  <br>https://github.com/NVIDIA/TensorRT-LLM<br>对于无cnn的，如GPT2，不借助onnx解析器，自己搭建网络推理，典型的llama.cpp，llama2.c 这类针对特定结构开发的推理项目，<br>以及 [vllm](./vllm/readme.md) <br>https://lilianweng.github.io/posts/2023-01-10-inference-optimization/#distillation  |- |    
-|cnn + transformer| tensorrt[plugin] + tensorrt-llm<br>如detr3d, vit 需要tensorrt[plugin] 与 tensorrt-llm 一起使用，实现最优效果| -|     
+|cnn + transformer| tensorrt[plugin] + tensorrt-llm<br>如[detr3d](https://github.com/lix19937/tensorrt-insight/tree/main/plugin/detr3d/decoder), vit 需要tensorrt[plugin] 与 tensorrt-llm 一起使用，实现最优效果| -|     
 
 -------------------------------   
 https://developer.nvidia.com/blog/mastering-llm-techniques-inference-optimization/
