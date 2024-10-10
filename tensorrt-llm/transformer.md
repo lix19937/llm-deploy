@@ -38,6 +38,7 @@ self.operation_order=('self_attn', 'norm', 'cross_attn', 'norm', 'ffn', 'norm')
     
     return query
     ```
+    详细优化[验证脚本](python/export_ln_prenorm_in_encoder.py)  
 
 
 
