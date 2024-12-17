@@ -166,7 +166,7 @@ Q4：对于量化校准有几种量化方法，加速比如何？这几种量化
 A4：关于量化性能可以私下聊，关于效果，我们只做了基本的验证，确保实现的 kernel 没问题,并不能保证所有量化算法在实际业务中的结果，因为还有些无法控制的因素，比如量化用到的数据集及影响。关于 in-flight batching，是指在 runtime 的时候去检测、判断某个 sample/request 的输出是否结束。如果是，再将其它到达的 requests 插进来，TensorRT-LLM 不会也不能预告预测输出的长度。
 
 Q5：In-flight branching 的 C++ 接口和 python 接口是否会保持一致？TensorRT-LLM 安装成本高，今后是否有改进计划？TensorRT-LLM 会和 VLLM 发展角度有不同吗？      
-A5：我们会尽量提供 c++ runtime 和 python runtime 一致的接口，已经在规划当中。之前团队的重点在提升性能、完善功能上，以后在易用性方面也会不断改善。这里不好直接跟 vllm 的比较，但是 NVIDIA 会持续加大在 TensorRT-LLM 开发、社区和客户支持的投入，为业界提供最好的 LLM 推理方案。   
+A5：会尽量提供 c++ runtime 和 python runtime 一致的接口，已经在规划当中。之前团队的重点在提升性能、完善功能上，以后在易用性方面也会不断改善。这里不好直接跟 vllm 的比较，但是 NVIDIA 会持续加大在 TensorRT-LLM 开发、社区和客户支持的投入，为业界提供最好的 LLM 推理方案。   
 
 [1] continuous-batching-llm-inference   
 https://www.anyscale.com/blog/continuous-batching-llm-inference     
@@ -175,12 +175,12 @@ https://arxiv.org/abs/2211.10438
 [3] AWQ    
 https://arxiv.org/abs/2306.00978   
 [4] GPTQ    
-https://arxiv.org/abs/2210.17323     
-[5] Orca: A Distributed Serving System for Transformer-Based Generative Models    
-https://help.aliyun.com/zh/eventbridge/user-guide/transform/?spm=a2c4g.11186623.0.0.501b5750w5RP1Q 
-[6] MQA（Multi-query Attention）    
+https://arxiv.org/abs/2210.17323          
+[5] Orca: A Distributed Serving System for Transformer-Based Generative Models     
+https://help.aliyun.com/zh/eventbridge/user-guide/transform/?spm=a2c4g.11186623.0.0.501b5750w5RP1Q         
+[6] MQA（Multi-query Attention）     
 https://arxiv.org/abs/1911.02150     
-[7] GQA（Group-query Attention）    
+[7] GQA（Group-query Attention）     
 https://arxiv.org/abs/2307.09288
 
 
