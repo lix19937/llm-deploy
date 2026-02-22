@@ -19,21 +19,21 @@ Python-based toolchain that converts HuggingFace models into ONNX format with qu
 人机协作   
 
 + Large Language Models    
-Llama 3.x (1B - 8B)
-Qwen 2/2.5/3 (0.5B - 7B)
-DeepSeek-R1 Distilled (1.5B, 7B)
+Llama 3.x (1B - 8B)    
+Qwen 2/2.5/3 (0.5B - 7B)     
+DeepSeek-R1 Distilled (1.5B, 7B)      
 
 
 + Vision-Language Models    
-Qwen2/2.5/3-VL (2B - 8B)
-InternVL3 (1B, 2B)
-Phi-4-Multimodal (Phi-4-multimodal-instruct, 5.6B)
+Qwen2/2.5/3-VL (2B - 8B)    
+InternVL3 (1B, 2B)    
+Phi-4-Multimodal (Phi-4-multimodal-instruct, 5.6B)        
 
 
-+ export onnx 
-将HuggingFace模型转换为适用于TensorRT引擎编译的优化ONNX表示。该管道处理模型量化、ONNX导出和LoRA自适应和多模态处理等专门功能。           
-模型加载:Load HuggingFace模型和标记器     
-量化（可选）  
-ONNX导出:将PyTorch模型转换为ONNX格式     
-图检查:为TensorRT优化ONNX   
-配置生成：创建生成配置文件     
++ export onnx    
+将HuggingFace模型转换为适用于TensorRT引擎编译的优化ONNX表示。该管道处理模型量化、ONNX导出和LoRA自适应和多模态处理等专门功能。            
+模型加载：Load HuggingFace模型和标记器     
+量化（可选）   
+ONNX导出：将PyTorch模型转换为ONNX格式     
+图检查：为TensorRT优化ONNX    
+配置生成：创建生成配置文件      
