@@ -37,3 +37,6 @@ Phi-4-Multimodal (Phi-4-multimodal-instruct, 5.6B)
 ONNX导出：将PyTorch模型转换为ONNX格式     
 图检查：为TensorRT优化ONNX    
 配置生成：创建生成配置文件      
+
+
+https://forums.developer.nvidia.com/t/tensorrt-edge-llm-on-the-agx-thor/351979/9
