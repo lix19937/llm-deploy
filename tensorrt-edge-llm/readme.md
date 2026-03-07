@@ -29,6 +29,13 @@ Qwen2/2.5/3-VL (2B - 8B)
 InternVL3 (1B, 2B)    
 Phi-4-Multimodal (Phi-4-multimodal-instruct, 5.6B)        
 
+High Performance: Optimized CUDA kernels and TensorRT integration for minimum latency    
+Memory Efficient: Supporting 4-bit quantization for reduced memory footprint, with FP8 KV cache support for additional memory savings    
+Production Ready: C++-only runtime with no Python dependencies, designed for deployment on edge devices    
+Edge Optimized: Built specifically for NVIDIA Jetson and DRIVE platforms with platform-specific optimizations    
+Rich Feature Set: Supports LoRA adapters, EAGLE3 speculative decoding, system prompt caching, vocabulary reduction, and vision-language models    
+Complete Toolkit: End-to-end workflow from Python export pipeline to C++ runtime, with engine builder and examples     
+
 
 + export onnx    
 将HuggingFace模型转换为适用于TensorRT引擎编译的优化ONNX表示。该管道处理模型量化、ONNX导出和LoRA自适应和多模态处理等专门功能。            
@@ -37,6 +44,9 @@ Phi-4-Multimodal (Phi-4-multimodal-instruct, 5.6B)
 ONNX导出：将PyTorch模型转换为ONNX格式     
 图检查：为TensorRT优化ONNX    
 配置生成：创建生成配置文件      
+
+
++  
 
 
 https://forums.developer.nvidia.com/t/tensorrt-edge-llm-on-the-agx-thor/351979/9
