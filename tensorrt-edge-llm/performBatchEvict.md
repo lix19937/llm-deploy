@@ -17,7 +17,8 @@
 + 使用 std::move 来避免大向量（如生成的长文本）的拷贝开销。     
 + rt::compactVector：对 CPU 端的 std::vector 进行原地压缩，移除无效元素。   
 
-
+------------------------------------------    
+4. 细节   
 + 双模型同步：代码显式地处理了 mBaseEngineRunner 和 mDraftEngineRunner。在投机采样中，如果 Base 模型剔除了一波请求，Draft 模型必须同步剔除，否则两者的 KV Cache 会由于索引错位而导致推理崩坏。      
 + 多模态支持（MRope）：代码中检测 getRopeCosSinCacheTensor 是否为 3 维，这暗示了系统可能支持多模态（如图像+文本），需要对每 Batch 的位置编码进行特殊处理。     
 + 异步与同步平衡：     
