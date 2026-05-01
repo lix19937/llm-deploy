@@ -1,6 +1,5 @@
 
-投机采样（Speculative Decoding）推理框架中的 Batch 驱逐与cache 压缩（Batch Eviction & Compaction） 逻辑。    
-
+投机采样（Speculative Decoding）推理框架中的 **Batch 驱逐与cache 压缩**（Batch Eviction & Compaction） 逻辑。     
 简单来说，当一个 Batch 中有部分请求（Sequence）已经生成完毕（Finished）时，为了节省显存并提高后续迭代的效率，代码会将这些“已完成”的请求从当前的活跃队列中剔除，并紧凑化（Compact）剩余的显存空间。
 
 1. 状态检测与映射建立    
