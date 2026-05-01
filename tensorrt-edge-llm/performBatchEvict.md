@@ -25,6 +25,12 @@
 使用 cudaMemcpyAsync 将映射表上传到 GPU，尽可能减少 Host 到 Device 的阻塞。    
 但在保存 CPU 结果前调用了 cudaStreamSynchronize。这是因为 CPU 需要读取上一轮 GPU 计算出的结果（如 mAcceptLength），必须确保 GPU 已经算完。
 
+-------------------------------------------     
+为什么要这样做？     
++ 显存碎片化：如果不压缩，随着请求不断结束，显存中会出现大量空洞。对于自动驾驶（Orin-X）等显存受限的边缘平台，这会导致无法装载新的 Prompt。   
++ 算力对齐：GPU 算子（如矩阵乘法）在 Batch 连续时效率最高。通过 compact 操作，将 10 个零散的请求压成前 10 个连续请求，能更好地填充 Tensor Core。    
++ 投机循环的特殊性：投机采样每轮会输出多个词。如果第 3 个请求在这一轮刚好达到 stop_token，就需要立即在这一轮结束后的 Runtime 里把它“剥离”，否则下一轮 Draft 模型还会浪费算力去为它“猜测”后续词。     
+
 
 ```cpp
 bool LLMInferenceSpecDecodeRuntime::performBatchEvict(SpecDecodeInferenceContext& context)
