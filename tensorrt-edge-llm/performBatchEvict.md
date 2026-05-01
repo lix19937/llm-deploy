@@ -4,10 +4,11 @@
 
 1. 状态检测与映射建立    
 代码首先检查 context.finishedStates。如果有请求完成，它会调用 buildBatchMapping。     
-+ Batch Mapping 的作用：生成一个索引映射表。例如，原来的 Batch 索引是 [0, 1, 2, 3]，如果 1 和 2 结束了，映射表可能是 [0, -1, -1, 1]（表示原索引 0 移到新位置 0，原索引 3 移到新位置 1，其余剔除）。    
++ Batch Mapping 的作用：生成一个索引映射表。     
+例如，原来的 Batch 索引是 [0, 1, 2, 3]，如果 1 和 2 结束了，映射表可能是 [0, -1, -1, 1]（表示原索引 0 移到新位置 0，原索引 3 移到新位置 1，其余剔除）。    
 
 2. GPU 显存压缩   
-这是代码最重头的部分。因为投机采样涉及两个模型（Base 和 Draft），必须同步清理两者的缓存：    
+这是代码最重头的部分。因为投机采样涉及两个模型（Base 和 Draft），必须同步清理两者的缓存。         
 + KV Cache 压缩：调用 kernel::compactKVCache。这通常是一个高效的 CUDA Kernel，将显存中不连续的、属于“存活请求”的 KV 缓存块重新排列到连续的内存地址。   
 + RoPE 缓存压缩：处理旋转位置编码（RoPE）相关的 Cos/Sin 缓存。    
 + 中间张量压缩：包括 mBaseHiddenStatesOutput（隐藏层状态）、mAcceptedTokenIds（已接受的 Token）等。这些是下一轮投机验证（Accept Token）时必须读取的上下文。
