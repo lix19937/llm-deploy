@@ -18,9 +18,9 @@
 + rt::compactVector：对 CPU 端的 std::vector 进行原地压缩，移除无效元素。   
 
 
-双模型同步：代码显式地处理了 mBaseEngineRunner 和 mDraftEngineRunner。在投机采样中，如果 Base 模型剔除了一波请求，Draft 模型必须同步剔除，否则两者的 KV Cache 会由于索引错位而导致推理崩坏。      
-多模态支持（MRope）：代码中检测 getRopeCosSinCacheTensor 是否为 3 维，这暗示了系统可能支持多模态（如图像+文本），需要对每 Batch 的位置编码进行特殊处理。    
-异步与同步平衡：    
++ 双模型同步：代码显式地处理了 mBaseEngineRunner 和 mDraftEngineRunner。在投机采样中，如果 Base 模型剔除了一波请求，Draft 模型必须同步剔除，否则两者的 KV Cache 会由于索引错位而导致推理崩坏。      
++ 多模态支持（MRope）：代码中检测 getRopeCosSinCacheTensor 是否为 3 维，这暗示了系统可能支持多模态（如图像+文本），需要对每 Batch 的位置编码进行特殊处理。     
++ 异步与同步平衡：     
 使用 cudaMemcpyAsync 将映射表上传到 GPU，尽可能减少 Host 到 Device 的阻塞。    
 但在保存 CPU 结果前调用了 cudaStreamSynchronize。这是因为 CPU 需要读取上一轮 GPU 计算出的结果（如 mAcceptLength），必须确保 GPU 已经算完。
 
