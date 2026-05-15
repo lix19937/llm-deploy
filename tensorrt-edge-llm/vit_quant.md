@@ -1,6 +1,10 @@
 
 v0.7.0    qwen3 
 
+tensorrt_edgellm/quantization/visual_quantization.py -->   
+tensorrt_edgellm/onnx_export/visual_export.py -->  
+tensorrt_edgellm/scripts/export_visual.py
+       
 ```
 # Export with FP8 quantization  fp8(W8A8)  
 python export_visual.py --model_dir qwen3.5/ --output_dir vit/output --quantization fp8 --dataset_dir lmms-lab/MMMU  
