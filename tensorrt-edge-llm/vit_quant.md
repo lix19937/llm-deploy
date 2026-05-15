@@ -1,9 +1,26 @@
 
 v0.7.0    qwen3 
 
-tensorrt_edgellm/quantization/visual_quantization.py -->   
-tensorrt_edgellm/onnx_export/visual_export.py -->  
-tensorrt_edgellm/scripts/export_visual.py
+```
+Usage:
+    # Export without quantization
+    python export_visual.py --model_dir /path/to/model --output_dir /path/to/output
+    
+    # Export with FP8 quantization
+    python export_visual.py --model_dir /path/to/model --output_dir /path/to/output --quantization fp8
+    
+    # Export with specific device
+    python export_visual.py --model_dir /path/to/model --output_dir /path/to/output --device cuda:1
+    
+
+
+tensorrt_edgellm/scripts/export_visual.py  --->
+
+tensorrt_edgellm/onnx_export/visual_export.py --->
+
+tensorrt_edgellm/quantization/visual_quantization.py
+```
+
        
 ```
 # Export with FP8 quantization  fp8(W8A8)  
