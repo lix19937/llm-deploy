@@ -37,7 +37,7 @@ tensorrt_edgellm/scripts/quantize_llm.py --->
        
 ```
 
-## load_hf_model   (Load model and tokenizer)   
+## load_hf_model   (Load model and tokenizer)   @ tensorrt_edgellm/llm_models/model_utils.py  
 
 ```py  
 # only support fp16 
@@ -73,7 +73,7 @@ else:
 if not is_gptq_model(model):
     model.to(torch_dtype) # 强制转换数据精度格式
 else:
-    casted_params, casted_buffers, skipped_quantized_modules = _cast_non_gptq_float_tensors_to_dtype(model, torch_dtype)
+    casted_params, casted_buffers, skipped_quantized_modules = _cast_non_gptq_float_tensors_to_dtype(model, torch_dtype) # 转换un-gptq dtype to fp16
     print(f"GPTQ load dtype normalization: cast {casted_params} params and {casted_buffers} buffers to {torch_dtype}; skipped {skipped_quantized_modules} GPTQ quantized modules.")
 
     # Set tokenizer padding token if needed
@@ -90,10 +90,9 @@ except Exception:
     pass
 
 # return model, tokenizer, processor
-
 ```
 
-### _cast_non_gptq_float_tensors_to_dtype 
+### _cast_non_gptq_float_tensors_to_dtype  @ tensorrt_edgellm/llm_models/model_utils.py
 ```py
 def _cast_non_gptq_float_tensors_to_dtype(model: nn.Module, target_dtype: torch.dtype) -> Tuple[int, int, int]:
     """
@@ -173,7 +172,7 @@ def quantize_llm(
     return quantize_model(model, quant_config, data_loader)
 ```
 
-### get_llm_quant_config   
+### get_llm_quant_config   @ tensorrt_edgellm/quantization/llm_quantization.py
 ```py
 def get_llm_quant_config(quantization: Optional[str],
         lm_head_quantization: Optional[str],
@@ -228,4 +227,48 @@ def get_llm_quant_config(quantization: Optional[str],
     # Disable non-LLM submodules (visual/audio encoders, Phi-4MM embeds, etc.)
     quant_cfg["quant_cfg"].update(DISABLE_NON_LLM_CONFIG["quant_cfg"])
     return quant_cfg
+```
+
+### get_text_calib_dataloader @ tensorrt_edgellm/quantization/calib_dataloaders.py  
+```py
+def get_text_calib_dataloader(
+    tokenizer: AutoTokenizer,
+    dataset_dir: str,
+    batch_size: int,
+    num_samples: int,
+    max_length: int,
+) -> DataLoader:
+    """
+    Create a text calibration dataloader for LLM quantization.
+
+    Args:
+        tokenizer  : HuggingFace tokenizer for text processing.
+        dataset_dir: Dataset name or local directory path.
+        batch_size : Batch size for the dataloader.
+        num_samples: Number of samples to use for calibration.
+        max_length : Maximum sequence length for tokenization.
+
+    Returns:
+        DataLoader yielding batches of ``input_ids`` tensors.
+    """
+    if "cnn_dailymail" in dataset_dir:
+        dataset = load_dataset(dataset_dir, name="3.0.0", split="train")
+        dataset = dataset["article"][:num_samples]
+    elif os.path.isdir(dataset_dir):
+        print(f"Recognized local dataset repo {dataset_dir} for calibration; assuming the calibration data are in the train split and text column.")
+        dataset = load_dataset(dataset_dir, split="train")
+        dataset = dataset["text"][:num_samples]
+    else:
+        raise NotImplementedError(f"Unsupported dataset name or local repo directory: {dataset_dir}.")
+
+    # Use tokenizer __call__ for transformers v5-compatible batch tokenization.
+    batch_encoded = tokenizer(dataset,
+                              return_tensors="pt",
+                              padding=True,
+                              truncation=True,
+                              max_length=max_length)
+
+    return DataLoader(batch_encoded["input_ids"],
+                      batch_size=batch_size,
+                      shuffle=False)
 ```
