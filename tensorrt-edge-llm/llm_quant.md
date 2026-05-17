@@ -43,24 +43,29 @@ tensorrt_edgellm/scripts/quantize_llm.py --->
 # only support fp16 
 torch_dtype = torch.float16
 
-tokenizer = AutoTokenizer.from_pretrained(model_dir, trust_remote_code=True) # AutoTokenizer 来自 transformers 包
+# AutoModelForCausalLM 来自 transformers 包
+# AutoModelForImageTextToText 来自 transformers 包
+# AutoProcessor 来自 transformers 包
+# AutoTokenizer 来自 transformers 包
+
+tokenizer = AutoTokenizer.from_pretrained(model_dir, trust_remote_code=True) 
 
 # vlm 
 if is_vlm(model_dir):
     # Try multimodal loader first; AutoModelForCausalLM would silently drop the visual tower for models that register both classes.
     try:
-        model = AutoModelForImageTextToText.from_pretrained(model_dir, torch_dtype=torch_dtype, trust_remote_code=True).to(device) # AutoModelForImageTextToText 来自 transformers 包
+        model = AutoModelForImageTextToText.from_pretrained(model_dir, torch_dtype=torch_dtype, trust_remote_code=True).to(device)
     except Exception as e_vlm:
         try:
-            model = AutoModelForCausalLM.from_pretrained(model_dir, torch_dtype=torch_dtype, trust_remote_code=True).to(device) # AutoModelForCausalLM 来自 transformers 包
+            model = AutoModelForCausalLM.from_pretrained(model_dir, torch_dtype=torch_dtype, trust_remote_code=True).to(device) 
         except Exception as e:
             raise ValueError(f"Could not load model from {model_dir}. Error: {e}")
 else:
     try:
-        model = AutoModelForCausalLM.from_pretrained(model_dir, torch_dtype=torch_dtype, trust_remote_code=True).to(device) # AutoModelForCausalLM 来自 transformers 包
+        model = AutoModelForCausalLM.from_pretrained(model_dir, torch_dtype=torch_dtype, trust_remote_code=True).to(device) 
     except Exception as e_causal:
         try:
-            model = AutoModelForImageTextToText.from_pretrained(model_dir, torch_dtype=torch_dtype, trust_remote_code=True).to(device) # AutoModelForImageTextToText 来自 transformers 包
+            model = AutoModelForImageTextToText.from_pretrained(model_dir, torch_dtype=torch_dtype, trust_remote_code=True).to(device) 
         except Exception as e:
             raise ValueError(f"Could not load model from {model_dir}. Error: {e}")
 
@@ -79,7 +84,7 @@ else:
 
 # Try to load processor if available
 try:
-    processor = AutoProcessor.from_pretrained( model_dir, trust_remote_code=True, min_pixels=128 * 28 * 28, max_pixels=2048 * 32 * 32) # AutoProcessor 来自 transformers 包
+    processor = AutoProcessor.from_pretrained( model_dir, trust_remote_code=True, min_pixels=128 * 28 * 28, max_pixels=2048 * 32 * 32) 
     print(f"Warning: Loaded processor from {model_dir}. The processor will skip image processing for images smaller than 128x28x28 or bigger than 2048x32x32 due to excessive memory usage during image quantization.")
 except Exception:
     pass
