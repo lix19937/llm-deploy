@@ -37,7 +37,7 @@ tensorrt_edgellm/scripts/quantize_llm.py --->
        
 ```
 
-## load_hf_model   (Load model and tokenizer)   @ tensorrt_edgellm/llm_models/model_utils.py  
+## load_hf_model   (Load model and tokenizer)  @ tensorrt_edgellm/llm_models/model_utils.py    
 
 ```py  
 # only support fp16 
@@ -92,7 +92,7 @@ except Exception:
 # return model, tokenizer, processor
 ```
 
-### _cast_non_gptq_float_tensors_to_dtype  @ tensorrt_edgellm/llm_models/model_utils.py
+### _cast_non_gptq_float_tensors_to_dtype  @ tensorrt_edgellm/llm_models/model_utils.py    
 ```py
 def _cast_non_gptq_float_tensors_to_dtype(model: nn.Module, target_dtype: torch.dtype) -> Tuple[int, int, int]:
     """
@@ -117,7 +117,7 @@ def _cast_non_gptq_float_tensors_to_dtype(model: nn.Module, target_dtype: torch.
     return casted_params, casted_buffers, skipped_quantized_modules
 ```
 
-## quantize_llm   
+## quantize_llm    
 ```py
 def quantize_llm(
     model: Union[AutoModelForCausalLM, AutoModelForImageTextToText],
@@ -172,7 +172,7 @@ def quantize_llm(
     return quantize_model(model, quant_config, data_loader)
 ```
 
-### get_llm_quant_config   @ tensorrt_edgellm/quantization/llm_quantization.py
+### get_llm_quant_config  @ tensorrt_edgellm/quantization/llm_quantization.py    
 ```py
 def get_llm_quant_config(quantization: Optional[str],
         lm_head_quantization: Optional[str],
@@ -229,7 +229,7 @@ def get_llm_quant_config(quantization: Optional[str],
     return quant_cfg
 ```
 
-### get_text_calib_dataloader @ tensorrt_edgellm/quantization/calib_dataloaders.py  
+### get_text_calib_dataloader @ tensorrt_edgellm/quantization/calib_dataloaders.py    
 ```py
 def get_text_calib_dataloader(
     tokenizer: AutoTokenizer,
