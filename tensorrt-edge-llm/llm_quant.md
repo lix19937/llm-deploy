@@ -1,3 +1,4 @@
+主要针对qwen3   
 
 ```
 Usage:
@@ -36,9 +37,9 @@ tensorrt_edgellm/scripts/quantize_llm.py --->
        
 ```
 
-### load_hf_model   (Load model and tokenizer)   
+## load_hf_model   (Load model and tokenizer)   
 
-```
+```py  
 # only support fp16 
 torch_dtype = torch.float16
 
@@ -110,4 +111,116 @@ def _cast_non_gptq_float_tensors_to_dtype(model: nn.Module, target_dtype: torch.
                     setattr(module, buffer_name, buffer.to(dtype=target_dtype))
                     casted_buffers += 1
     return casted_params, casted_buffers, skipped_quantized_modules
+```
+
+## quantize_llm   
+```py
+def quantize_llm(
+    model: Union[AutoModelForCausalLM, AutoModelForImageTextToText],
+    tokenizer: AutoTokenizer,
+    dataset_dir: str, #  用于PTQ 
+    quantization:          Optional[str],
+    lm_head_quantization:  Optional[str],
+    kv_cache_quantization: Optional[str],
+    is_omni: bool = False,
+    processor=None,
+    model_dir: Optional[str] = None,
+    audio_dataset_dir:  str = "openslr/librispeech_asr",
+    visual_dataset_dir: str = "lmms-lab/MMMU",
+) -> Union[AutoModelForCausalLM, AutoModelForImageTextToText]:
+    """Quantize a language model using the specified quantization method.
+
+    Qwen3-ASR uses audio-backed calibration for the LLM backbone.
+    Qwen3-Omni uses multimodal calibration when a processor is available,
+    and falls back to text-only calibration otherwise.
+
+    Args:
+        model: The model to quantize.
+        tokenizer: Tokenizer for text processing.
+        dataset_dir: Calibration dataset. Text by default; ASR may switch to audio-backed calibration automatically.
+        quantization: Quantization method.
+        lm_head_quantization:  Optional LM head quantization method.
+        kv_cache_quantization: Optional KV cache quantization method.
+        is_omni: Use multimodal Omni calibration pipeline.
+        processor: HuggingFace processor (Omni multimodal calib).
+        model_dir: Original model directory.
+        audio_dataset_dir: Audio calibration dataset (Omni).
+        visual_dataset_dir: Image calibration dataset (Omni).
+    """
+    assert (quantization is not None) or (lm_head_quantization is not None) or (kv_cache_quantization is not None), \
+        "At least one of 'quantization', 'lm_head_quantization', or 'kv_cache_quantization' must be set (not all None)."
+    assert quantization          in [None, "fp8", "int4_awq", "nvfp4", "mxfp8", "int8_sq"]
+    assert lm_head_quantization  in [None, "fp8", "nvfp4", "mxfp8"]
+    assert kv_cache_quantization in [None, "fp8"]
+
+    # q config 
+    quant_config = get_llm_quant_config(quantization, lm_head_quantization, kv_cache_quantization)
+
+    if quantization is None or "int4" in quantization:
+        batch_size = 16
+    else:
+        batch_size = 1
+    data_loader = get_text_calib_dataloader(tokenizer=tokenizer,
+                                            dataset_dir=dataset_dir,
+                                            batch_size=batch_size,
+                                            num_samples=512,
+                                            max_length=512)
+    return quantize_model(model, quant_config, data_loader)
+```
+
+### get_llm_quant_config   
+```py
+def get_llm_quant_config(quantization: Optional[str],
+        lm_head_quantization: Optional[str],
+        kv_cache_quantization: Optional[str]) -> Dict[str, Any]:
+    """
+    Get quantization configuration for LLM models.
+    
+    Args:
+        quantization         : Optional quantization method
+        lm_head_quantization : Optional LM head quantization method
+        kv_cache_quantization: Optional attention quantization method   (enables FP8 KV cache + FP8 FMHA compute)
+        
+    Returns: Dict containing quantization configuration
+    """
+    # Get base config
+    if quantization is None:
+        quant_cfg = {"quant_cfg": {}, "algorithm": "max"}
+    elif quantization == "fp8":
+        quant_cfg = mtq.FP8_DEFAULT_CFG.copy()
+    elif quantization == "int4_awq":
+        quant_cfg = mtq.INT4_AWQ_CFG.copy()
+    elif quantization == "nvfp4":
+        quant_cfg = mtq.NVFP4_DEFAULT_CFG.copy()
+    elif quantization == "mxfp8":
+        quant_cfg = mtq.MXFP8_DEFAULT_CFG.copy()
+    elif quantization == "int8_sq":
+        quant_cfg = mtq.INT8_SMOOTHQUANT_CFG.copy()
+    else:
+        raise ValueError(f"Unsupported quantization: {quantization}")
+
+    # Add LM head quantization if specified
+    if lm_head_quantization is not None:
+        # Remove any existing lm_head configuration
+        quant_cfg["quant_cfg"] = {
+            k: v
+            for k, v in quant_cfg["quant_cfg"].items() if "*lm_head" not in k
+        }
+
+        if lm_head_quantization == "fp8":
+            quant_cfg["quant_cfg"].update(FP8_LM_HEAD_CONFIG["quant_cfg"])
+        elif lm_head_quantization == "nvfp4":
+            quant_cfg["quant_cfg"].update(NVFP4_LM_HEAD_CONFIG["quant_cfg"])
+        elif lm_head_quantization == "mxfp8":
+            quant_cfg["quant_cfg"].update(MXFP8_LM_HEAD_CONFIG["quant_cfg"])
+
+    # Add attention/KV-cache quantization if specified (FP8 KV cache + FP8 FMHA compute)
+    if kv_cache_quantization is not None:
+        if kv_cache_quantization == "fp8":
+            quant_cfg["quant_cfg"].update(mtq.FP8_KV_CFG["quant_cfg"])
+            quant_cfg["quant_cfg"].update(FP8_ATTN_CONFIG["quant_cfg"])
+
+    # Disable non-LLM submodules (visual/audio encoders, Phi-4MM embeds, etc.)
+    quant_cfg["quant_cfg"].update(DISABLE_NON_LLM_CONFIG["quant_cfg"])
+    return quant_cfg
 ```
