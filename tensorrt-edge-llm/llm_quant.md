@@ -43,10 +43,10 @@ tensorrt_edgellm/scripts/quantize_llm.py --->
 # only support fp16 
 torch_dtype = torch.float16
 
-# AutoModelForCausalLM 来自 transformers 包
+# AutoModelForCausalLM        来自 transformers 包
 # AutoModelForImageTextToText 来自 transformers 包
-# AutoProcessor 来自 transformers 包
-# AutoTokenizer 来自 transformers 包
+# AutoProcessor               来自 transformers 包
+# AutoTokenizer               来自 transformers 包
 
 tokenizer = AutoTokenizer.from_pretrained(model_dir, trust_remote_code=True) 
 
