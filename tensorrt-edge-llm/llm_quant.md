@@ -328,7 +328,7 @@ from modelopt.torch.export import export_hf_checkpoint
 tokenizer is AutoTokenizer.from_pretrained
 ```
 
-### 6 processor.save_pretrained   
+## 6 processor.save_pretrained   
 ```
 processor is AutoProcessor.from_pretrained 
 ```
