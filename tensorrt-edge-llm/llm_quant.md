@@ -15,13 +15,9 @@ Usage:
 
 ```
         "--quantization",           choices=["fp8", "int4_awq", "nvfp4", "mxfp8", "int8_sq"],     
-
         "--dtype",                  choices=["fp16"],
-
         "--dataset_dir",            default="cnn_dailymail"
-
         "--lm_head_quantization",   choices=["fp8", "nvfp4", "mxfp8"],  help="Quantization method for language model head (only fp8, nvfp4, and mxfp8 are currently supported)"
-
         "--kv_cache_quantization",  choices=["fp8"],  help="Attention quantization: enables FP8 KV cache and FP8 FMHA compute (Q/K/V BMM quantizers + BMM2 output quantizer)")
 ```
 
@@ -37,8 +33,7 @@ tensorrt_edgellm/scripts/quantize_llm.py --->
        
 ```
 
-## load_hf_model   (Load model and tokenizer)  @ tensorrt_edgellm/llm_models/model_utils.py    
-
+## 1 load_hf_model   (Load model and tokenizer)  @ tensorrt_edgellm/llm_models/model_utils.py    
 ```py  
 # only support fp16 
 torch_dtype = torch.float16
@@ -92,7 +87,7 @@ except Exception:
 # return model, tokenizer, processor
 ```
 
-### _cast_non_gptq_float_tensors_to_dtype  @ tensorrt_edgellm/llm_models/model_utils.py    
+### 1.2 _cast_non_gptq_float_tensors_to_dtype  @ tensorrt_edgellm/llm_models/model_utils.py    
 ```py
 def _cast_non_gptq_float_tensors_to_dtype(model: nn.Module, target_dtype: torch.dtype) -> Tuple[int, int, int]:
     """
@@ -117,7 +112,7 @@ def _cast_non_gptq_float_tensors_to_dtype(model: nn.Module, target_dtype: torch.
     return casted_params, casted_buffers, skipped_quantized_modules
 ```
 
-## quantize_llm    
+## 2 quantize_llm
 ```py
 def quantize_llm(
     model: Union[AutoModelForCausalLM, AutoModelForImageTextToText],
@@ -135,8 +130,7 @@ def quantize_llm(
     """Quantize a language model using the specified quantization method.
 
     Qwen3-ASR uses audio-backed calibration for the LLM backbone.
-    Qwen3-Omni uses multimodal calibration when a processor is available,
-    and falls back to text-only calibration otherwise.
+    Qwen3-Omni uses multimodal calibration when a processor is available, and falls back to text-only calibration otherwise.
 
     Args:
         model: The model to quantize.
@@ -160,22 +154,18 @@ def quantize_llm(
     # q config 
     quant_config = get_llm_quant_config(quantization, lm_head_quantization, kv_cache_quantization)
 
-    if quantization is None or "int4" in quantization:
-        batch_size = 16
-    else:
-        batch_size = 1
-    data_loader = get_text_calib_dataloader(tokenizer=tokenizer,
-                                            dataset_dir=dataset_dir,
-                                            batch_size=batch_size,
-                                            num_samples=512,
-                                            max_length=512)
+    batch_size = 16 if quantization is None or "int4" in quantization else 1
+
+    # calib_dataloader
+    data_loader = get_text_calib_dataloader(tokenizer=tokenizer, dataset_dir=dataset_dir, batch_size=batch_size, num_samples=512, max_length=512)
     return quantize_model(model, quant_config, data_loader)
 ```
 
-### get_llm_quant_config  @ tensorrt_edgellm/quantization/llm_quantization.py    
+### 2.1 get_llm_quant_config  @ tensorrt_edgellm/quantization/llm_quantization.py    
 ```py
-def get_llm_quant_config(quantization: Optional[str],
-        lm_head_quantization: Optional[str],
+def get_llm_quant_config(
+        quantization         : Optional[str],
+        lm_head_quantization : Optional[str],
         kv_cache_quantization: Optional[str]) -> Dict[str, Any]:
     """
     Get quantization configuration for LLM models.
@@ -206,10 +196,7 @@ def get_llm_quant_config(quantization: Optional[str],
     # Add LM head quantization if specified
     if lm_head_quantization is not None:
         # Remove any existing lm_head configuration
-        quant_cfg["quant_cfg"] = {
-            k: v
-            for k, v in quant_cfg["quant_cfg"].items() if "*lm_head" not in k
-        }
+        quant_cfg["quant_cfg"] = { k: v  for k, v in quant_cfg["quant_cfg"].items() if "*lm_head" not in k }
 
         if lm_head_quantization == "fp8":
             quant_cfg["quant_cfg"].update(FP8_LM_HEAD_CONFIG["quant_cfg"])
@@ -229,7 +216,7 @@ def get_llm_quant_config(quantization: Optional[str],
     return quant_cfg
 ```
 
-### get_text_calib_dataloader @ tensorrt_edgellm/quantization/calib_dataloaders.py    
+### 2.2 get_text_calib_dataloader @ tensorrt_edgellm/quantization/calib_dataloaders.py    
 ```py
 def get_text_calib_dataloader(
     tokenizer: AutoTokenizer,
@@ -248,8 +235,7 @@ def get_text_calib_dataloader(
         num_samples: Number of samples to use for calibration.
         max_length : Maximum sequence length for tokenization.
 
-    Returns:
-        DataLoader yielding batches of ``input_ids`` tensors.
+    Returns: DataLoader yielding batches of ``input_ids`` tensors.
     """
     if "cnn_dailymail" in dataset_dir:
         dataset = load_dataset(dataset_dir, name="3.0.0", split="train")
@@ -262,13 +248,37 @@ def get_text_calib_dataloader(
         raise NotImplementedError(f"Unsupported dataset name or local repo directory: {dataset_dir}.")
 
     # Use tokenizer __call__ for transformers v5-compatible batch tokenization.
-    batch_encoded = tokenizer(dataset,
+    batch_encoded = tokenizer(dataset, # 这里 tokenizer type is AutoTokenizer 
                               return_tensors="pt",
                               padding=True,
                               truncation=True,
                               max_length=max_length)
 
-    return DataLoader(batch_encoded["input_ids"],
+    return DataLoader(batch_encoded["input_ids"], # 这里DataLoader from torch.utils.data import DataLoader
                       batch_size=batch_size,
                       shuffle=False)
+
+```
+### 2.3 quantize_model  @ tensorrt_edgellm/quantization/quantization_utils.py   
+
+
+## 3 _sanitize_generation_config    
+```py
+
+```
+
+## 4 export_hf_checkpoint  
+
+```py
+
+```
+
+## 5 tokenizer.save_pretrained  
+```py
+
+```
+
+### 6 processor.save_pretrained   
+```py
+
 ```
