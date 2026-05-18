@@ -259,26 +259,76 @@ def get_text_calib_dataloader(
                       shuffle=False)
 
 ```
+
 ### 2.3 quantize_model  @ tensorrt_edgellm/quantization/quantization_utils.py   
-
-
-## 3 _sanitize_generation_config    
 ```py
+def quantize_model(
+    model: torch.nn.Module,
+    quant_config: Dict[str, Any],
+    calib_dataloader: DataLoader,
+) -> torch.nn.Module:
+    """
+    Quantize a PyTorch model using the specified configuration and calibration data.
+    
+    Args:
+        model: PyTorch model to quantize
+        quant_config: Quantization configuration dictionary
+        calib_dataloader: DataLoader for calibration data
+        
+    Returns: Quantized PyTorch model
+    """
+    # Define calibration loop
+    def calibrate_loop(model: torch.nn.Module) -> None:
+        """
+        Calibration loop that adjusts weights and scaling factors.
+        
+        Args:  model: Model to calibrate
+        """
+        # Create progress bar for calibration
+        print(f"Calibrating model on {len(calib_dataloader)} samples...")
+        pbar = tqdm(calib_dataloader, desc="Calibrating", unit="num_samples")
+
+        # Add extra necessary kwargs for Phi-4-Multimodal
+        kwargs = {}
+        if hasattr(model, "config") and "phi4mm" in getattr( model.config, "model_type", "").lower():
+            # Have already merged the vision LoRA, so set input_mode=0 (LANGUAGE) during quantization
+            kwargs["input_mode"] = 0
+            # Work around a transformers version mismatch between Phi-4MM and Edge-LLM
+            kwargs["use_cache"] = False
+
+        for data in pbar:
+            if isinstance(data, dict):
+                data = {
+                    k:v.to(model.device, dtype=model.dtype if v.is_floating_point() else None) #  v.is_floating_point
+                    for k, v in data.items()
+                }
+                model(**data, **kwargs)
+            else:
+                data = data.to(model.device)
+                model(data, **kwargs)
+
+    # Get quantization config and perform quantization
+    mtq.quantize(model, quant_config, forward_loop=calibrate_loop)
+    # 检查量化情况  
+    mtq.print_quant_summary(model)
+    return model
 
 ```
 
-## 4 export_hf_checkpoint  
+## 3 _sanitize_generation_config    
 
-```py
 
+## 4 export_hf_checkpoint    
+```
+from modelopt.torch.export import export_hf_checkpoint
 ```
 
 ## 5 tokenizer.save_pretrained  
-```py
-
+``` 
+tokenizer is AutoTokenizer.from_pretrained
 ```
 
 ### 6 processor.save_pretrained   
-```py
-
+```
+processor is AutoProcessor.from_pretrained 
 ```
