@@ -1,7 +1,8 @@
 ## LLM 推理加速    
 
-[llm 基本概念](llm-start.md)      
-llm 生成策略中的几个选项[temperature](tensorrt-edge-llm/temperature.md)  [top-p](tensorrt-edge-llm/top-p.md)   [top-k](tensorrt-edge-llm/top-k.md)    [Batch Eviction](tensorrt-edge-llm/performBatchEvict.md)
+[LLM 基本概念](llm-start.md)      
+[temperature](tensorrt-edge-llm/temperature.md)  [top-p](tensorrt-edge-llm/top-p.md)   [top-k](tensorrt-edge-llm/top-k.md)    [Batch Eviction](tensorrt-edge-llm/performBatchEvict.md)    
+[LLM 自回归生成机制与 Prompt 本质的几点思考](LLM_Generation_Mechanism_Dialogue.md)   
 
 ![2016-openvx-api-slide6](https://github.com/lix19937/llm-deploy/assets/38753233/e9dd22fe-6206-485d-af68-83ac53fd1ed0)
 |模型组成|方法|备注|   
