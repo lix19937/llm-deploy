@@ -46,10 +46,10 @@ LLM 的本质是一个**概率预测机器**。当它接收到前面的所有 To
 
 ### 2.1 从模型的“视界”来看：输入是一个不断延伸的序列
 对于大模型而言，它没有“这是用户写的”和“这是我自己写的”这种主观概念。在它的注意力层（Attention Layer）眼里，输入只有一串代表 Token 的数字 ID（Token IDs）。
-* **第一轮计算：** $	ext{Input} = [T_{	ext{prompt1}}, T_{	ext{prompt2}}, T_{	ext{prompt3}}]$
-* **第二轮计算：** $	ext{Input} = [T_{	ext{prompt1}}, T_{	ext{prompt2}}, T_{	ext{prompt3}}, T_{	ext{generated1}}]$
+* **第一轮计算：** $ext{Input} = [T_{	ext{prompt1}}, T_{ext{prompt2}}, T_{ext{prompt3}}]$
+* **第二轮计算：** $ext{Input} = [T_{	ext{prompt1}}, T_{ext{prompt2}}, T_{ext{prompt3}}, T_{ext{generated1}}]$
 
-新生成的 $T_{	ext{generated1}}$ 直接被追加到了序列的末尾。在第二轮计算时，整个这一长串就是模型眼中的**“新 Prompt”**。
+新生成的 $T_{ext{generated1}}$ 直接被追加到了序列的末尾。在第二轮计算时，整个这一长串就是模型眼中的**“新Prompt”**。
 
 ### 2.2 定调作用（Anchoring Effect）
 第一个 Token 作为“新 Prompt”的一部分，对后续的生成起到了极强的**定调和约束作用**。
