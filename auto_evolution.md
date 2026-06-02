@@ -9,3 +9,5 @@ autoresearch 的成功不是因为"AI 很聪明"，而是因为设计者**精确
 对于 AI 研究者和工程师的启示：与其争论 AI 能不能做研究，不如把精力放在**设计更好的"研究环境"上。当评估指标清晰、搜索空间精确、反馈及时**，AI 的自主研究能力会超乎预期。
 
 让AI 分析 autoresearch 项目   
+
+https://github.com/davebcn87/pi-autoresearch   
